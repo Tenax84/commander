@@ -46,6 +46,10 @@ type
        How much space to leave between the text and left border.
     }
     FLeftSpacing: Integer;
+    {en
+       Total Commander style drop down arrow before the path.
+    }
+    FDropDownArrow: Boolean;
 
     {en
        If a user clicks on a parent directory of the path,
@@ -83,6 +87,7 @@ type
 
     property AllowHighlight: Boolean read FAllowHighlight write FAllowHighlight;
     property LeftSpacing: Integer read FLeftSpacing write FLeftSpacing;
+    property DropDownArrow: Boolean read FDropDownArrow write FDropDownArrow;
     property SelectedDir: String read FSelectedDir;
 
     property ActiveColor: TColor index 0 read GetColor write SetColor;
@@ -122,6 +127,7 @@ end;
 procedure TPathLabel.Paint;
 var
   TextTop: Integer;
+  I, ArrowSize, ArrowLeft, ArrowTop: Integer;
 begin
   Canvas.Brush.Color := Color;
   Canvas.Font.Color  := Font.Color;
@@ -131,6 +137,17 @@ begin
 
   Canvas.FillRect(0, 0, Width, Height); // background
   Canvas.TextOut(LeftSpacing, TextTop, Text); // path
+
+  // Total Commander style drop down arrow
+  if FDropDownArrow then
+  begin
+    ArrowSize := Scale96ToForm(4);
+    ArrowLeft := (LeftSpacing - ArrowSize * 2) div 2;
+    ArrowTop := (Height - ArrowSize) div 2;
+    Canvas.Pen.Color := Font.Color;
+    for I := 0 to ArrowSize - 1 do
+      Canvas.Line(ArrowLeft + I, ArrowTop + I, ArrowLeft + ArrowSize * 2 - 1 - I, ArrowTop + I);
+  end;
 
   // Highlight part of the path if mouse is over it.
   if FHighlightStartPos <> -1 then

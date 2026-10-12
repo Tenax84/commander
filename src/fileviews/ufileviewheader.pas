@@ -5,7 +5,7 @@ unit uFileViewHeader;
 interface
 
 uses
-  Classes, SysUtils, Controls, ExtCtrls, ComCtrls, ShellCtrls, LCLVersion,
+  Classes, SysUtils, Controls, ExtCtrls, ComCtrls, ShellCtrls, LCLVersion, Buttons,
   uPathLabel, uFileView, KASPathEdit, uFileSorting;
 
 type
@@ -18,7 +18,11 @@ type
     FAddressLabel: TPathLabel;
     FPathLabel: TPathLabel;
     FPathEdit: TKASPathEdit;
+    FHotlistButton: TSpeedButton;
+    FHistoryButton: TSpeedButton;
     procedure HeaderResize(Sender: TObject);
+    procedure HotlistButtonClick(Sender: TObject);
+    procedure HistoryButtonClick(Sender: TObject);
     procedure PathEditExit(Sender: TObject);
     procedure onKeyESCAPE(Sender: TObject);
     procedure onKeyRETURN(Sender: TObject);
@@ -43,6 +47,7 @@ type
 
   protected
     tmViewHistoryMenu: TTimer;
+    procedure Paint; override;
     procedure PathLabelSetColor(APathLabel: TPathLabel);
   public
     constructor Create(AOwner: TFileView; AParent: TWinControl); reintroduce;
@@ -94,7 +99,7 @@ type
 implementation
 
 uses
-  LCLType, Graphics, uDCUtils, DCOSUtils, DCStrUtils, uKeyboard,
+  LCLType, Graphics, Forms, uFileViewNotebook, uTCStyle, uDCUtils, DCOSUtils, DCStrUtils, uKeyboard,
   fMain, uFileSourceUtil, uGlobs, uPixMapManager, uLng, uFileFunctions,
   uFileSource, uArchiveFileSource, uFileViewWithPanels, uVfsModule;
 
@@ -113,6 +118,19 @@ var
   walkPath, selectedDir, dirNameToSelect: String;
 begin
   FFileView.SetFocus;
+
+  // Total Commander style: drop down arrow before the path shows the drives
+  if FPathLabel.ScreenToClient(Mouse.CursorPos).X < FPathLabel.LeftSpacing then
+  begin
+    if FFileView.NotebookPage is TFileViewPage then
+    begin
+      if TFileViewPage(FFileView.NotebookPage).Notebook = frmMain.LeftTabs then
+        frmMain.Commands.cm_LeftOpenDrives([])
+      else
+        frmMain.Commands.cm_RightOpenDrives([]);
+    end;
+    Exit;
+  end;
 
   if FPathLabel.SelectedDir <> '' then
   begin
@@ -298,6 +316,33 @@ begin
   FPathLabel.Align := alTop;
   FAddressLabel.Align := alTop;
 
+  // Total Commander style: sunken path box with a drop down arrow,
+  // directory hotlist and history buttons on the right side
+  FPathLabel.Align := alClient;
+  FPathLabel.BorderSpacing.Around := 1;
+  FPathLabel.DropDownArrow := True;
+  FPathLabel.LeftSpacing := ScaleX(13, 96);
+
+  Color := clBtnFace;
+
+  FHotlistButton := TSpeedButton.Create(Self);
+  FHotlistButton.Parent := Self;
+  FHotlistButton.Align := alRight;
+  FHotlistButton.Width := ScaleX(19, 96);
+  FHotlistButton.Flat := True;
+  FHotlistButton.Caption := '*';
+  FHotlistButton.Hint := frmMain.actDirHotList.Hint;
+  FHotlistButton.OnClick := @HotlistButtonClick;
+
+  FHistoryButton := TSpeedButton.Create(Self);
+  FHistoryButton.Parent := Self;
+  FHistoryButton.Align := alRight;
+  FHistoryButton.Width := ScaleX(19, 96);
+  FHistoryButton.Flat := True;
+  FHistoryButton.Caption := #$E2#$96#$BC; // black down-pointing triangle
+  FHistoryButton.Hint := frmMain.actDirHistory.Hint;
+  FHistoryButton.OnClick := @HistoryButtonClick;
+
   FPathEdit:= TKASPathEdit.Create(FPathLabel);
   FPathEdit.Parent:= Self;
   FPathEdit.Mate:= Self;
@@ -341,6 +386,34 @@ begin
   UpdatePathLabel;
 end;
 
+procedure TFileViewHeader.HotlistButtonClick(Sender: TObject);
+begin
+  FFileView.SetFocus;
+  frmMain.Commands.cm_DirHotList([]);
+end;
+
+procedure TFileViewHeader.HistoryButtonClick(Sender: TObject);
+begin
+  FFileView.SetFocus;
+  frmMain.Commands.cm_DirHistory([]);
+end;
+
+procedure TFileViewHeader.Paint;
+var
+  R: TRect;
+begin
+  inherited Paint;
+  // Total Commander style sunken frame around the path
+  R := FPathLabel.BoundsRect;
+  R := Rect(R.Left - 1, R.Top - 1, R.Right + 1, R.Bottom + 1);
+  Canvas.Pen.Color := clBtnShadow;
+  Canvas.Line(R.Left, R.Bottom - 1, R.Left, R.Top);
+  Canvas.Line(R.Left, R.Top, R.Right, R.Top);
+  Canvas.Pen.Color := clBtnHighlight;
+  Canvas.Line(R.Right - 1, R.Top + 1, R.Right - 1, R.Bottom - 1);
+  Canvas.Line(R.Left, R.Bottom - 1, R.Right, R.Bottom - 1);
+end;
+
 // 1. in most cases, as not to bother users,
 //    the Header does not need to show hint,
 // 2. so set hint to the full path, only when the path in PathLabel is shortened
@@ -372,7 +445,7 @@ end;
 procedure TFileViewHeader.UpdatePathLabel;
 begin
   // Total Commander style: show the file mask after the path, e.g. "c:\dir\*.*"
-  FPathLabel.Caption := MinimizeFilePath(FFileView.CurrentPath + '*.*', FPathLabel.Canvas, FPathLabel.Width);
+  FPathLabel.Caption := MinimizeFilePath(TCStyleDisplayPath(FFileView.CurrentPath) + '*.*', FPathLabel.Canvas, FPathLabel.Width);
 end;
 
 procedure TFileViewHeader.UpdateColor;

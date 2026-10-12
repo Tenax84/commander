@@ -45,6 +45,7 @@ type
     pnlHeader: TFileViewHeader;
 
     procedure UpdateStatusBarFont;
+    procedure FooterPaint(Sender: TObject);
     procedure AfterChangePath; override;
     procedure CreateDefault(AOwner: TWinControl); override;
     procedure DisplayFileListChanged; override;
@@ -70,7 +71,7 @@ type
 implementation
 
 uses
-  DCStrUtils, uFile, uGlobs, uLng, uFileProperty, uFileViewWorker, uDCUtils;
+  Graphics, DCStrUtils, uFile, uGlobs, uLng, uFileProperty, uFileViewWorker, uDCUtils;
 
 { TFileViewWithPanels }
 
@@ -99,6 +100,13 @@ begin
   ShowPathEdit;
 end;
 
+procedure TFileViewWithPanels.FooterPaint(Sender: TObject);
+begin
+  // Total Commander style separator line above the status bar
+  pnlFooter.Canvas.Pen.Color := cl3DLight;
+  pnlFooter.Canvas.Line(0, 0, pnlFooter.Width, 0);
+end;
+
 procedure TFileViewWithPanels.CreateDefault(AOwner: TWinControl);
 begin
   inherited CreateDefault(AOwner);
@@ -117,6 +125,18 @@ begin
   lblInfo.Parent   := pnlFooter;
   lblInfo.AutoSize := False;
   lblInfo.Align    := alClient;
+
+  // Total Commander style: single line frame around the file list and the
+  // status bar, the status bar has a separator line above
+  Color := clBtnShadow;
+  pnlFooter.Color := clBtnFace;
+  pnlFooter.BorderSpacing.Left := 1;
+  pnlFooter.BorderSpacing.Right := 1;
+  pnlFooter.BorderSpacing.Bottom := 1;
+  pnlFooter.OnPaint := @FooterPaint;
+  lblInfo.BorderSpacing.Left := ScaleX(2, 96);
+  lblInfo.BorderSpacing.Top := ScaleY(3, 96);
+  lblInfo.BorderSpacing.Bottom := ScaleY(2, 96);
 
   {$IF DEFINED(LCLGTK2)}
   // Workaround: "Layout and line"

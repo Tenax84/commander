@@ -977,7 +977,7 @@ uses
   Laz2_XMLRead, DCOSUtils, DCStrUtils, fOptions, fOptionsFrame, fOptionsToolbar, uClassesEx,
   uHotDir, uFileSorting, DCBasicTypes, foptionsDirectoryHotlist, uConnectionManager,
   fOptionsToolbarBase, fOptionsToolbarMiddle, fEditor, uColumns, StrUtils, uSysFolders,
-  uColumnsFileView, dmHigh, uFileSourceOperationMisc
+  uColumnsFileView, dmHigh, uFileSourceOperationMisc, uTCStyle
 {$IFDEF MSWINDOWS}
   , uShellFileSource, uNetworkThread, uMyWindows, uRestoreFlicker
 {$ENDIF}
@@ -1061,7 +1061,7 @@ begin
   begin
     VolumeLabel:= mbGetVolumeLabel(ExtractFileDrive(Path) + PathDelim, True);
     if Length(VolumeLabel) = 0 then VolumeLabel:= rsDriveUnnamed;
-    VolumeLabel:= '[' + VolumeLabel + ']  ';
+    VolumeLabel:= '[' + UTF8LowerCase(VolumeLabel) + ']  ';
   end;
 {$ENDIF}
   if Assigned(Application) and not (AppDoNotCallAsyncQueue in Application.Flags) then
@@ -3193,6 +3193,17 @@ var
     AToolbar.AddButton(CommandItem);
   end;
 
+  procedure AddProgram(const Command, Hint: String);
+  var
+    ProgramItem: TKASProgramItem;
+  begin
+    ProgramItem := TKASProgramItem.Create;
+    ProgramItem.Icon := Command;
+    ProgramItem.Command := Command;
+    ProgramItem.Hint := Hint;
+    AToolbar.AddButton(ProgramItem);
+  end;
+
   procedure AddSeparator(Style: TKASSeparatorStyle = kssSeparator);
   var
     SeparatorItem: TKASSeparatorItem;
@@ -3211,31 +3222,33 @@ begin
     if not Assigned(MainToolBarNode) then
     begin
       AToolbar := MainToolBar;
+      // Total Commander style: the buttons of its default.bar
       AddCommand('cm_Refresh');
-      AddCommand('cm_RunTerm');
-      AddCommand('cm_Options');
       AddSeparator;
       AddCommand('cm_BriefView');
       AddCommand('cm_ColumnsView');
       AddCommand('cm_ThumbnailsView');
+      AddCommand('cm_TreeView');
       AddSeparator;
       AddCommand('cm_FlatView');
       AddSeparator;
+      AddCommand('cm_MarkInvert');
+      AddSeparator;
       AddCommand('cm_ViewHistoryPrev');
       AddCommand('cm_ViewHistoryNext');
-      AddSeparator;
-      AddCommand('cm_MarkPlus');
-      AddCommand('cm_MarkMinus');
-      AddCommand('cm_MarkInvert');
       AddSeparator;
       AddCommand('cm_PackFiles');
       AddCommand('cm_ExtractFiles');
       AddSeparator;
       AddCommand('cm_NetworkConnect');
+      AddCommand('cm_NetworkDisconnect');
+      AddSeparator;
       AddCommand('cm_Search');
       AddCommand('cm_MultiRename');
       AddCommand('cm_SyncDirs');
       AddCommand('cm_CopyFullNamesToClip');
+      AddSeparator;
+      AddProgram('notepad.exe', 'Notepad');
       SaveToolBar(MainToolBar);
     end;
   end;
@@ -3245,6 +3258,9 @@ begin
     if not Assigned(MainToolBarNode) then
     begin
       AToolbar := MiddleToolBar;
+      // Total Commander style: two empty places above the buttons
+      AddSeparator(kssDivider);
+      AddSeparator(kssDivider);
       AddCommand('cm_View');
       AddCommand('cm_Edit');
       AddCommand('cm_Copy');
@@ -5131,7 +5147,7 @@ begin
   Drive^.IsMounted:= True;
   Drive^.DriveType:= dtVirtual;
   Drive^.Path:= 'vfs:' + PathDelim;
-  Drive^.DisplayName:= PathDelim + PathDelim;
+  Drive^.DisplayName:= PathDelim; // Total Commander style
   Drive^.DriveLabel:= StripHotkey(actOpenVirtualFileSystemList.Caption);
   Drive^.FileSystem:= 'VFS';
   DrivesList.Add(Drive);
@@ -5938,6 +5954,9 @@ begin
     UpdateHotDirIcons; // Preferable to be loaded even if not required in popupmenu *because* in the tree it's a must, especially when checking for missing directories
     ShowTrayIcon(gAlwaysShowTrayIcon);
     UpdateMainTitleBar;
+
+    // Total Commander style
+    TCStyleUpdateMainForm(Self);
 
     FInitializedView := True;
   finally
@@ -6763,8 +6782,9 @@ begin
 
   AssignRetinaBitmapForControl(DriveButton, gDiskIconsSize, BitmapTmp);
 
+  // Total Commander style: room for the drop down arrow
   DriveButton.Width := gDiskIconsSize
-                     + DriveButton.Canvas.TextWidth(DriveButton.Caption) + 24;
+                     + DriveButton.Canvas.TextWidth(DriveButton.Caption) + 30;
 end;
 
 procedure TfrmMain.UpdateSelectedDrive(ANoteBook: TFileViewNotebook);
@@ -7047,8 +7067,12 @@ begin
       st := ExcludeTrailingBackslash(ActiveFrame.CurrentRealPath);
       Hint := st;
 
-      Caption := MinimizeFilePath(Format(fmtCommandPath, [st]),
+      Caption := MinimizeFilePath(Format(fmtCommandPath, [TCStyleDisplayPath(st)]), // Total Commander style
               Canvas, pnlCommand.Width div 3);
+      // Total Commander style: the command line starts at one third of the width
+      AutoSize := False;
+      Alignment := taRightJustify;
+      Width := pnlCommand.Width div 3 - BorderSpacing.Left;
     end;
 
     // Change path in terminal

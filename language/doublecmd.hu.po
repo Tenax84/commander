@@ -10431,6 +10431,14 @@ msgstr "<nincs címke>"
 msgid "unnamed"
 msgstr "névtelen"
 
+#: ulng.rsmnutcstart
+msgid "&Start"
+msgstr "&Start"
+
+#: ulng.rsmnutcstartconfig
+msgid "Change Start &menu..."
+msgstr "Start &menü módosítása..."
+
 #: ulng.rsdrivenomedia
 msgid "<no media>"
 msgstr "<nincs adathordozó>"

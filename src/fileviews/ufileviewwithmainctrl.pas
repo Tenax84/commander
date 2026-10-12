@@ -1565,6 +1565,11 @@ begin
 
   FMainControl.ControlStyle   := FMainControl.ControlStyle + [csQuadClicks];
 
+  // Total Commander style: single line frame around the file list
+  FMainControl.BorderSpacing.Left := 1;
+  FMainControl.BorderSpacing.Top := 1;
+  FMainControl.BorderSpacing.Right := 1;
+
   FMainControl.OnEnter        := @MainControlEnter;
   FMainControl.OnExit         := @MainControlExit;
   FMainControl.OnKeyDown      := @MainControlKeyDown;

@@ -1370,6 +1370,7 @@ begin
 
   TitleStyle := gColumnsTitleStyle;
   TabStop := False;
+  BorderStyle := bsNone; // Total Commander style: the file view draws the frame
 
   Self.Parent := AParent;
   UpdateView;

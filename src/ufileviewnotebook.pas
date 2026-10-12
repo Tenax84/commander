@@ -779,7 +779,17 @@ begin
 end;
 
 procedure TFileViewNotebook.WndProc(var Message: TLMessage);
+var
+  ARect: TRect;
 begin
+  // Total Commander style: no frame around the page if the tabs are hidden
+  if (Message.Msg = TCM_ADJUSTRECT) and (not ShowTabs) then
+  begin
+    ARect := PRect(Message.LParam)^;
+    inherited WndProc(Message);
+    PRect(Message.LParam)^ := ARect;
+    Exit;
+  end;
   inherited WndProc(Message);
   if Message.Msg = TCM_ADJUSTRECT then
   begin

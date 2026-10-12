@@ -1850,7 +1850,7 @@ begin
   gSortCaseSensitivity := cstNotSensitive;
   gSortNatural := False;
   gSortSpecial := False;
-  gSortFolderMode := sfmSortLikeFileShowFirst;
+  gSortFolderMode := sfmSortNameShowFirst; // Total Commander style
   gNewFilesPosition := nfpSortedPosition;
   gUpdatedFilesPosition := ufpNoChange;
   gFileSizeFormat := fsfByte;
@@ -1884,7 +1884,7 @@ begin
   gColumnsTitleLikeValues := False;
   gCutTextToColWidth := True;
   gExtendCellWidth := False;
-  gShowSystemFiles := False;
+  gShowSystemFiles := True; // Total Commander style
   // Under Mac OS X loading file list in separate thread are very very slow
   // so disable and hide this option under Mac OS X Carbon
   gListFilesInThread := {$IFDEF LCLCARBON}False{$ELSE}True{$ENDIF};
@@ -1895,7 +1895,7 @@ begin
   gDriveBlackListUnmounted := False;
 
   { File views page }
-  gExtraLineSpan := {$IFnDEF DARWIN}2{$ELSE}8{$ENDIF};
+  gExtraLineSpan := {$IFnDEF DARWIN}1{$ELSE}8{$ENDIF}; // Total Commander style
   gFolderPrefix := '[';
   gFolderPostfix := ']';
   gRenameConfirmMouse := False;
@@ -2007,14 +2007,14 @@ begin
   gButtonBar := {$IFnDEF DARWIN}True{$ELSE}False{$ENDIF};
   gToolBarFlat := True;
   gMiddleToolBar := True;
-  gToolBarButtonSize := 24;
-  gToolBarIconSize := 16;
+  gToolBarButtonSize := 28; // Total Commander style
+  gToolBarIconSize := 20; // Total Commander style
   gToolBarShowCaptions := False;
   gToolbarReportErrorWithCommands := FALSE;
 
   gMiddleToolBarFlat := True;
-  gMiddleToolBarButtonSize := 24;
-  gMiddleToolBarIconSize := 16;
+  gMiddleToolBarButtonSize := 32; // Total Commander style
+  gMiddleToolBarIconSize := 20; // Total Commander style
   gMiddleToolBarShowCaptions := False;
   gMiddleToolbarReportErrorWithCommands := FALSE;
 
@@ -2230,7 +2230,7 @@ begin
   gIconsInMenusSize := 16;
   gIconsInMenusSizeNew := gIconsInMenusSize;
   gShowHiddenDimmed := False;
-  gIconTheme := DC_THEME_NAME;
+  gIconTheme := 'tcstyle'; // Total Commander style (inherits dctheme)
 
   { Ignore list page }
   gIgnoreListFileEnabled := False;

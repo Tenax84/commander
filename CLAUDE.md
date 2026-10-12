@@ -48,6 +48,7 @@ A TC-szerű megjelenés nagyrészt **kezdőérték-változtatás**, nem új funk
 - `src/fileviews/ufileviewheader.pas`: `*.*` maszk az útvonal után.
 - `src/fmain.pas`/`.lfm`: `[kötetcímke]` a szabad hely előtt, balra igazítva; F-gombok `F3 Nézőke` formában, F9 gomb nélkül.
 - `src/ulng.pas`, `language/doublecmd.hu.po`: TC-s magyar szóhasználat (Fájl, Kijelölés, Nézet, `<DIR>` stb.).
+- `pixmaps/tcstyle/` (új ikontéma): TC-szerű ikonok a felső eszköztár gombjaihoz (Codexszel generálva), minden más ikont a `dctheme`-től örököl (`Inherits=dctheme`). Az `uglobs.pas`-ban ez az alapértelmezett ikontéma.
 - `src/platform/win/urestoreflicker.pas` (új): kiküszöböli a minimalizálásból visszaállításkor jelentkező fekete villanást. A főablak WndProc-ját subclassolja; visszaállításkor DWM-cloakkal elrejti az ablakot, szinkron kirajzol mindent, és csak utána jeleníti meg (legfeljebb 300 ms múlva). Az `fmain.pas` telepíti, csak Windowson.
 
 Módosításnál vedd figyelembe:
@@ -63,7 +64,7 @@ Módosításnál vedd figyelembe:
 
 ## Nyitott feladatok (TC-hez képest)
 
-1. A felső és a középső eszköztár gombjai és ikonjai eltérnek a TC-étől.
+1. A középső eszköztár ikonjai eltérnek a TC-étől; a felső eszköztáron a `cm_NetworkDisconnect` még a DC-s ikont használja.
 2. Menüsor: a „Lapok” és a „Kedvencek” menü felesleges, a „Start” menü hiányzik, a „Súgó” nincs a jobb szélen.
 3. Meghajtósor: jobbra a `* \ .. ~ <` gombok látszanak; a TC-ben csak a `\ ..` van.
 4. A meghajtóbetű nagybetűs (`C:\`), a TC-ben kisbetűs (`c:\`); a „vissza” ikon zöld nyíl.

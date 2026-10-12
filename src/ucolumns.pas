@@ -866,16 +866,17 @@ begin
   fSetName := 'Default';
   FFileSystem := FS_GENERAL;
   DCFunc := '[' + sFuncTypeDC + '().%s{}]';
+  // Total Commander style column widths
   // file name
   Add(rsColName, Format(DCFunc, [TFileFunctionStrings[fsfNameNoExtension]]), 250, taLeftJustify);
   // file ext
-  Add(rsColExt, Format(DCFunc, [TFileFunctionStrings[fsfExtension]]), 50, taLeftJustify);
+  Add(rsColExt, Format(DCFunc, [TFileFunctionStrings[fsfExtension]]), 38, taLeftJustify);
   // file size
-  Add(rsColSize, Format(DCFunc, [TFileFunctionStrings[fsfSize]]), 70, taRightJustify);
+  Add(rsColSize, Format(DCFunc, [TFileFunctionStrings[fsfSize]]), 54, taRightJustify);
   // file date/time
-  Add(rsColDate, Format(DCFunc, [TFileFunctionStrings[fsfModificationTime]]), 140, taRightJustify);
+  Add(rsColDate, Format(DCFunc, [TFileFunctionStrings[fsfModificationTime]]), 90, taRightJustify);
   // file attributes
-  Add(rsColAttr, Format(DCFunc, [TFileFunctionStrings[fsfAttr]]), 100, taLeftJustify);
+  Add(rsColAttr, Format(DCFunc, [TFileFunctionStrings[fsfAttr]]), 38, taLeftJustify);
   // Default title hash
   UpdateDefaultTitleHash;
 end;

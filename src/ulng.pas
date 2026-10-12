@@ -766,6 +766,9 @@ resourcestring
   rsDriveNoMedia = '<no media>';
   rsDriveNoLabel = '<no label>';
   rsDriveUnnamed = 'unnamed';
+  // Total Commander style "Start" menu
+  rsMnuTCStart = '&Start';
+  rsMnuTCStartConfig = 'Change Start &menu...';
 
   // Edit
   rsEditNewFile = 'new.txt';
