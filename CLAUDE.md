@@ -17,11 +17,14 @@ Szükséges hozzá: Lazarus 4.8 a `C:\lazarus` mappában (FPC 3.2.2, x86_64-win6
 
 ```powershell
 devtools\build-dc.ps1 -Clean              # főprogram, DarkWin build mode, kb. 30 mp
-devtools\build-dc.ps1 -Mode all -Clean    # a komponens-csomagokkal együtt (első fordításnál kell)
+devtools\build-dc.ps1 -Mode all -Clean    # komponensek + pluginek + főprogram (első fordításnál kell), kb. 1 perc
 ```
 
+`-Mode` lehet `components`, `plugins`, `doublecmd` vagy `all`. Új gépen: `devtools\fetch-deps.bat`, utána `devtools\build-dc.ps1 -Mode all -Clean`, és a `run\doublecmd.exe` indítható.
+
+- `devtools\fetch-deps.bat`: a `run\` mappába letölti a repóból nem fordítható külső fájlokat (7z/unrar/lua/pcre2/libssh2 DLL-ek, 7z.sfx, winpty) a hivatalos v1.2.9 zip-ből (SHA256-tal ellenőrizve), és létrehozza a hordozható módot jelző `settings\doublecmd.inf`-et. Csak a hiányzókat tölti le.
 - **Mindig `-Clean` kapcsolóval fordíts.** Részleges újrafordításnál az FPC 3.2.2 belső hibával (internal error) leállhat.
-- A szkript sikeres fordítás után bemásolja a `doublecmd.exe`-t és a `language\doublecmd.hu.po`-t a `run\` mappába. Ha a `run\doublecmd.exe` éppen fut, a másolást kihagyja; ezt a `-NoDeploy` kapcsolóval is el lehet kerülni.
+- A szkript sikeres fordítás után összeállítja a `run\` mappát az `install\windows\install.bat` mintájára: exe, pluginek, `language\`, `pixmaps\`, `default\`, `highlighters\`, `doc\` stb. A `settings\` mappát és a külső DLL-eket nem bántja. Ha a `run\doublecmd.exe` éppen fut, a másolást kihagyja; ezt a `-NoDeploy` kapcsolóval is el lehet kerülni.
 - Fordítás közben a régi exe `doublecmd.exe.old` néven megmarad. Ez, a `units\` és a `components\*\lib\` mappa a .gitignore-ban van.
 
 ## Tesztelés
