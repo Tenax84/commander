@@ -19,7 +19,7 @@ var
   gModernUI: Boolean = True;
   gSplashForm: Boolean = False;
 {$ELSE}
-  gSplashForm: Boolean = True;
+  gSplashForm: Boolean = False; // Total Commander style
 {$ENDIF}
 
 procedure SaveEarlyConfig;

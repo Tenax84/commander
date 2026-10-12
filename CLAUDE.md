@@ -22,6 +22,7 @@ devtools\build-dc.ps1 -Mode all -Clean    # komponensek + pluginek + főprogram 
 
 `-Mode` lehet `components`, `plugins`, `doublecmd` vagy `all`. Új gépen: `devtools\fetch-deps.bat`, utána `devtools\build-dc.ps1 -Mode all -Clean`, és a `run\doublecmd.exe` indítható.
 
+- `build_and_run.bat`: kapcsolók nélkül előbb a `devtools\needs-build.ps1`-gyel ellenőrzi (kb. 0,5 mp alatt, a fájlok módosítási ideje alapján), hogy a `src\`, `components\`, `plugins\`, `language\` stb. mappákban módosult-e valami a `run\doublecmd.exe` óta. Ha nem, nem fordít, csak elindítja a programot, ha még nem fut. Kapcsolóval (pl. `-Mode all`) mindig fordít. Fordításkor bezárja a futó `run\doublecmd.exe`-t, lefuttatja a `devtools\build-dc.ps1 -Clean`-t (a további kapcsolókat, pl. `-Mode all`, továbbadja), majd elindítja a `run\doublecmd.exe`-t. Hiba esetén megáll, és nem indítja el a programot.
 - `devtools\fetch-deps.bat`: a `run\` mappába letölti a repóból nem fordítható külső fájlokat (7z/unrar/lua/pcre2/libssh2 DLL-ek, 7z.sfx, winpty) a hivatalos v1.2.9 zip-ből (SHA256-tal ellenőrizve), és létrehozza a hordozható módot jelző `settings\doublecmd.inf`-et. Csak a hiányzókat tölti le.
 - **Mindig `-Clean` kapcsolóval fordíts.** Részleges újrafordításnál az FPC 3.2.2 belső hibával (internal error) leállhat.
 - A szkript sikeres fordítás után összeállítja a `run\` mappát az `install\windows\install.bat` mintájára: exe, pluginek, `language\`, `pixmaps\`, `default\`, `highlighters\`, `doc\` stb. A `settings\` mappát és a külső DLL-eket nem bántja. Ha a `run\doublecmd.exe` éppen fut, a másolást kihagyja; ezt a `-NoDeploy` kapcsolóval is el lehet kerülni.
@@ -41,7 +42,7 @@ A kezdőértékekben végzett módosítások csak tiszta konfigurációval láts
 A TC-szerű megjelenés nagyrészt **kezdőérték-változtatás**, nem új funkció:
 
 - `src/uglobs.pas`: méretformátumok (bájt, illetve k), betű 9 pt normál, 16 px-es ikonok, kurzorkeret, középső eszköztár bekapcsolva, a fülsor csak több fülnél látszik, `yyyy.mm.dd hh:nn` dátumformátum, Alt+F4 a kilépéshez, a Név oszlop kitölti a panelt.
-- `src/platform/uearlyconfig.pas`: `gAppMode = 3`, vagyis kényszerített világos téma.
+- `src/platform/uearlyconfig.pas`: `gAppMode = 3`, vagyis kényszerített világos téma; `gSplashForm = False`, vagyis nincs indítóképernyő.
 - `src/ucolors.pas`: világoskék kurzor fekete betűvel, az útvonal-fejléc TC-színekkel.
 - `src/ufilefunctions.pas`: `rahs` attribútum-formátum (`-a--`).
 - `src/fileviews/ufileviewheader.pas`: `*.*` maszk az útvonal után.
