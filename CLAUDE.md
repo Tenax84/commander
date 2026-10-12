@@ -4,14 +4,12 @@ A Double Commander (https://github.com/doublecmd/doublecmd) Windows-os forkja. A
 
 ## Mappaszerkezet
 
-A repó a `D:\Tenax84\commander\doublecmd-src` mappa. Mellette olyan helyi mappák vannak, amelyek nincsenek verziókezelve:
+A repó a `D:\Tenax84\commander` mappa. Benne olyan helyi mappák is vannak, amelyeket a .gitignore kizár:
 
 | Mappa | Tartalom |
 |---|---|
-| `..\run\` | Hordozható futtatási könyvtár: a hivatalos v1.2.9 bináris csomag másolata, benne a saját buildünk (`doublecmd.exe`) és a `settings\` mappa a hordozható konfigurációval. Itt teszteljük a programot. |
-| `..\doublecmd-win64\` | A letöltött hivatalos v1.2.9, érintetlenül, összehasonlításhoz. |
-| `..\dl\` | Letöltött archívumok. |
-| `..\screenshots\` | A képernyőképek és villanásmérések kimenete (TC kontra DC). |
+| `run\` | Hordozható futtatási könyvtár: a hivatalos v1.2.9 bináris csomag másolata, benne a saját buildünk (`doublecmd.exe`) és a `settings\` mappa a hordozható konfigurációval. Itt teszteljük a programot. |
+| `screenshots\` | A képernyőképek és villanásmérések kimenete (TC kontra DC). |
 
 ## Fordítás
 
@@ -23,17 +21,17 @@ devtools\build-dc.ps1 -Mode all -Clean    # a komponens-csomagokkal együtt (els
 ```
 
 - **Mindig `-Clean` kapcsolóval fordíts.** Részleges újrafordításnál az FPC 3.2.2 belső hibával (internal error) leállhat.
-- A szkript sikeres fordítás után bemásolja a `doublecmd.exe`-t és a `language\doublecmd.hu.po`-t a `..\run\` mappába. Ha a `run\doublecmd.exe` éppen fut, a másolást kihagyja; ezt a `-NoDeploy` kapcsolóval is el lehet kerülni.
+- A szkript sikeres fordítás után bemásolja a `doublecmd.exe`-t és a `language\doublecmd.hu.po`-t a `run\` mappába. Ha a `run\doublecmd.exe` éppen fut, a másolást kihagyja; ezt a `-NoDeploy` kapcsolóval is el lehet kerülni.
 - Fordítás közben a régi exe `doublecmd.exe.old` néven megmarad. Ez, a `units\` és a `components\*\lib\` mappa a .gitignore-ban van.
 
 ## Tesztelés
 
 Automatizált tesztek nincsenek. Úgy ellenőrzünk, hogy a programot a Total Commanderrel egymás mellett futtatjuk, és összehasonlítjuk őket:
 
-- `devtools\shot.ps1 -Suffix _vN`: mindkét ablakot (`TOTALCMD64`, `doublecmd`) azonos méretre (1400×900) állítja, és a `..\screenshots\` mappába menti őket.
+- `devtools\shot.ps1 -Suffix _vN`: mindkét ablakot (`TOTALCMD64`, `doublecmd`) azonos méretre (1400×900) állítja, és a `screenshots\` mappába menti őket.
 - `devtools\flash.ps1 -Name doublecmd [-Mode 0|1|2] [-All]`: minimalizálja, majd visszaállítja az ablakot, és közben 20 ms-onként képernyőképet készít a fekete pixelek arányáról. Ezzel mérjük a visszaállításkori villanást.
 
-A kezdőértékekben végzett módosítások csak tiszta konfigurációval látszanak. Ha a `..\run\settings\` mappában már van mentett `doublecmd.xml`, az felülírja őket, ezért teszteléskor töröld vagy nevezd át.
+A kezdőértékekben végzett módosítások csak tiszta konfigurációval látszanak. Ha a `run\settings\` mappában már van mentett `doublecmd.xml`, az felülírja őket, ezért teszteléskor töröld vagy nevezd át.
 
 ## Saját módosítások (az upstreamhez képest)
 

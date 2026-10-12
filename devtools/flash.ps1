@@ -1,6 +1,6 @@
 # Minimalizálás -> visszaállítás közben gyors képernyőfelvételt készít, és megszámolja a fekete pixeleket.
 # Mode 0: SC_RESTORE (mint a tálcakattintás), 1: ShowWindow(SW_RESTORE), 2: ShowWindow(SW_SHOWNOACTIVATE)
-param([string]$OutDir=(Join-Path $PSScriptRoot '..\..\screenshots'),[string]$Name='doublecmd',[int]$Runs=3,[int]$Frames=60,[string]$Tag='',[int]$Mode=0,[switch]$All)
+param([string]$OutDir=(Join-Path $PSScriptRoot '..\screenshots'),[string]$Name='doublecmd',[int]$Runs=3,[int]$Frames=60,[string]$Tag='',[int]$Mode=0,[switch]$All)
 Add-Type -AssemblyName System.Drawing
 Add-Type -ReferencedAssemblies System.Drawing @"
 using System; using System.Drawing; using System.Drawing.Imaging; using System.Runtime.InteropServices; using System.Diagnostics; using System.Collections.Generic;

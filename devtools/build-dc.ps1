@@ -1,7 +1,7 @@
 ﻿# Double Commander fordítása Lazarus 4.8 / FPC 3.2.2-vel, majd az exe és a magyar fordítás bemásolása a run mappába.
 # Mindig -Clean kapcsolóval futtasd: a részleges újrafordításnál az FPC 3.2.2 belső hibával leállhat.
 param([string]$Mode = 'doublecmd', [string]$BuildMode = 'DarkWin', [switch]$Clean,
-      [string]$RunDir = (Join-Path $PSScriptRoot '..\..\run'), [switch]$NoDeploy)
+      [string]$RunDir = (Join-Path $PSScriptRoot '..\run'), [switch]$NoDeploy)
 $ErrorActionPreference = 'Stop'
 $env:PATH = "C:\lazarus;C:\lazarus\fpc\3.2.2\bin\x86_64-win64;$env:PATH"
 $src = Resolve-Path (Join-Path $PSScriptRoot '..')
