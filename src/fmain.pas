@@ -979,7 +979,7 @@ uses
   fOptionsToolbarBase, fOptionsToolbarMiddle, fEditor, uColumns, StrUtils, uSysFolders,
   uColumnsFileView, dmHigh, uFileSourceOperationMisc
 {$IFDEF MSWINDOWS}
-  , uShellFileSource, uNetworkThread
+  , uShellFileSource, uNetworkThread, uMyWindows, uRestoreFlicker
 {$ENDIF}
 {$IFDEF DARWIN}
   , uCocoaModernFormConfig
@@ -1027,6 +1027,7 @@ type
     Panel: TFilePanelSelect;
     FileSource: IFileSource;
     FreeSize, TotalSize : Int64;
+    VolumeLabel: String;
     procedure GetFreeSpaceInThread;
   end;
 
@@ -1054,6 +1055,15 @@ end;
 procedure TFreeSpaceData.GetFreeSpaceInThread;
 begin
   Result:= FileSource.GetFreeSpace(Path, FreeSize, TotalSize);
+{$IFDEF MSWINDOWS}
+  // Total Commander style "[label]" prefix for local drives
+  if Result and FileSource.IsClass(TFileSystemFileSource) and (Length(ExtractFileDrive(Path)) = 2) then
+  begin
+    VolumeLabel:= mbGetVolumeLabel(ExtractFileDrive(Path) + PathDelim, True);
+    if Length(VolumeLabel) = 0 then VolumeLabel:= rsDriveUnnamed;
+    VolumeLabel:= '[' + VolumeLabel + ']  ';
+  end;
+{$ENDIF}
   if Assigned(Application) and not (AppDoNotCallAsyncQueue in Application.Flags) then
     Application.QueueAsyncCall(OnFinish, PtrInt(Self));
 end;
@@ -4195,6 +4205,10 @@ begin
 
   if bFirst then UpdateActionIcons;
 
+{$IF DEFINED(MSWINDOWS)}
+  InstallRestoreFlickerFix(Handle);
+{$ENDIF}
+
   // Save real main form handle
   Application.MainForm.Tag:= Handle;
 end;
@@ -4261,11 +4275,8 @@ procedure TfrmMain.lblDriveInfoResize(Sender: TObject);
 begin
   with TLabel(Sender) do
   begin
-    if Canvas.TextWidth(Caption) > Width then
-      Alignment:= taLeftJustify
-    else begin
-      Alignment:= taCenter;
-    end;
+    // Total Commander style: always left aligned
+    Alignment:= taLeftJustify;
   end;
 end;
 
@@ -5882,10 +5893,12 @@ begin
           begin
             Hotkey := HMForm.Hotkeys.FindByCommand(FunctionButtonsCaptions[I].ACommand);
             if Assigned(Hotkey) then
-              FunButton.Caption := FunctionButtonsCaptions[I].ACaption + ' ' + ShortcutsToText(Hotkey.Shortcuts);
+              FunButton.Caption := Hotkey.Shortcuts[0] + ' ' + FunctionButtonsCaptions[I].ACaption;
           end;
         end;
       end;
+      // Total Commander style: no F9 (terminal) button
+      btnF9.Visible := False;
       UpdateGUIFunctionKeys;
     end;
 
@@ -7122,7 +7135,7 @@ begin
       if gShortFormatDriveInfo then
         lblDriveInfo.Caption := Format(rsFreeMsgShort, [cnvFormatFileSize(AData.FreeSize, uoscHeader)])
       else begin
-        lblDriveInfo.Caption := lblDriveInfo.Hint;
+        lblDriveInfo.Caption := AData.VolumeLabel + lblDriveInfo.Hint;
       end;
       sboxDrive.Hint := lblDriveInfo.Hint;
 
