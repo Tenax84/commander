@@ -1247,7 +1247,7 @@ begin
       AddIfNotExists(['Shift+F12'],[],'cm_DoAnyCmCommand');
       AddIfNotExists(['Shift+Tab'],[],'cm_FocusTreeView');
       AddIfNotExists(['Alt+V'],[],'cm_OperationsViewer');
-      AddIfNotExists(['Alt+X'],[],'cm_Exit');
+      AddIfNotExists(['Alt+F4','Alt+X'],[],'cm_Exit');
       AddIfNotExists(['Alt+Z'],[],'cm_TargetEqualSource');
       AddIfNotExists(['Alt+F1'],[],'cm_LeftOpenDrives');
       AddIfNotExists(['Alt+F2'],[],'cm_RightOpenDrives');
@@ -1853,13 +1853,13 @@ begin
   gSortFolderMode := sfmSortLikeFileShowFirst;
   gNewFilesPosition := nfpSortedPosition;
   gUpdatedFilesPosition := ufpNoChange;
-  gFileSizeFormat := fsfFloat;
-  gHeaderSizeFormat := fsfFloat;
-  gFooterSizeFormat := fsfFloat;
+  gFileSizeFormat := fsfByte;
+  gHeaderSizeFormat := fsfKilo;
+  gFooterSizeFormat := fsfKilo;
   gOperationSizeFormat := fsfFloat;
   gFileSizeDigits := 1;
-  gHeaderDigits := 1;
-  gFooterDigits := 1;
+  gHeaderDigits := 0;
+  gFooterDigits := 0;
   gOperationSizeDigits := 1;
   SetGlob1KBase(1024);
   //NOTES: We're intentionnaly not setting our default memory immediately because language file has not been loaded yet.
@@ -1874,8 +1874,8 @@ begin
   gScrollMode := smLineByLine;
   gWheelScrollLines:= Mouse.WheelScrollLines;
   gZoomWithCtrlWheel:= {$ifdef DARWIN}False{$else}True{$endif};
-  gAutoFillColumns := False;
-  gAutoSizeColumn := 1;
+  gAutoFillColumns := True;
+  gAutoSizeColumn := 0;
   gColumnsLongInStatus := False;
   gColumnsAutoSaveWidth := True;
   gColumnsTitleStyle := tsNative;
@@ -1915,8 +1915,8 @@ begin
 
   { Fonts page }
   gFonts[dcfMain].Name := 'default';
-  gFonts[dcfMain].Size := 10;
-  gFonts[dcfMain].Style := [fsBold];
+  gFonts[dcfMain].Size := 9;
+  gFonts[dcfMain].Style := [];
   gFonts[dcfMain].Quality := fqDefault;
   gFonts[dcfMain].MinValue := 6;
   gFonts[dcfMain].MaxValue := 200;
@@ -1992,7 +1992,7 @@ begin
   gFonts[dcfStatusBar].MaxValue := 200;
 
   { Colors page }
-  gUseCursorBorder := False;
+  gUseCursorBorder := True;
   gUseFrameCursor := False;
   gUseInvertedSelection := False;
   gUseInactiveSelColor := False;
@@ -2006,7 +2006,7 @@ begin
   gMainMenu := True;
   gButtonBar := {$IFnDEF DARWIN}True{$ELSE}False{$ENDIF};
   gToolBarFlat := True;
-  gMiddleToolBar := False;
+  gMiddleToolBar := True;
   gToolBarButtonSize := 24;
   gToolBarIconSize := 16;
   gToolBarShowCaptions := False;
@@ -2041,7 +2041,7 @@ begin
   gDriveFreeSpace := True;
   gProgInMenuBar := False;
   gPanelOfOp := True;
-  gShortFormatDriveInfo := True;
+  gShortFormatDriveInfo := False;
   gHorizontalFilePanels := False;
   gUpperCaseDriveLetter := False;
   gShowColonAfterDrive := False;
@@ -2122,8 +2122,7 @@ begin
   gExtractOverwrite := False;
 
   { Tabs page }
-  gDirTabOptions := [tb_always_visible,
-                     tb_confirm_close_all,
+  gDirTabOptions := [tb_confirm_close_all,
                      tb_show_asterisk_for_locked,
                      tb_activate_panel_on_click,
                      tb_close_on_doubleclick,
@@ -2218,7 +2217,7 @@ begin
   gShowIcons := sim_all_and_exe;
   gShowIconsNew := gShowIcons;
   gIconOverlays := False;
-  gIconsSize := 32;
+  gIconsSize := 16;
   gIconsSizeNew := gIconsSize;
   gDiskIconsSize := 16;
   gDiskIconsAlpha := 50;
@@ -2408,7 +2407,7 @@ begin
   gRepeatPassword := True;
   gFirstTextSearch := True;
   gErrorFile := gpCfgDir + ExtractOnlyFileName(Application.ExeName) + '.err';
-  DefaultDateTimeFormat := FormatSettings.ShortDateFormat + ' hh:nn:ss';
+  DefaultDateTimeFormat := 'yyyy.mm.dd hh:nn';
   DefaultDateTimeFormatSync := 'yyyy.mm.dd hh:nn:ss';
 end;
 

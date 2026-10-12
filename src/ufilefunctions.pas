@@ -124,6 +124,16 @@ const TFileFunctionToProperty: array [Low(TFileFunction)..fsfInvalid] of TFilePr
              [fpCompressedSize],
              [] { invalid });
 
+// Total Commander style "rahs" attribute string, e.g. "-a--"
+function FormatTCAttributes(iAttr: TFileAttrs): String;
+begin
+  Result:= '----';
+  if (iAttr and FILE_ATTRIBUTE_READONLY) <> 0 then Result[1] := 'r';
+  if (iAttr and FILE_ATTRIBUTE_ARCHIVE ) <> 0 then Result[2] := 'a';
+  if (iAttr and FILE_ATTRIBUTE_HIDDEN  ) <> 0 then Result[3] := 'h';
+  if (iAttr and FILE_ATTRIBUTE_SYSTEM  ) <> 0 then Result[4] := 's';
+end;
+
 //Return type (Script or DC or Plugin etc)
 function GetModType(str: String): String;
 begin
@@ -272,6 +282,8 @@ begin
         begin
           if (AFile.Properties[fpAttributes] is TUnixFileAttributesProperty) and (AParam = ATTR_OCTAL) then
             Result := FormatUnixModeOctal(AFile.Attributes)
+          else if AFile.Properties[fpAttributes] is TNtfsFileAttributesProperty then
+            Result := FormatTCAttributes(AFile.Attributes)
           else
             Result := AFile.Properties[fpAttributes].Format(DefaultFilePropertyFormatter);
         end;

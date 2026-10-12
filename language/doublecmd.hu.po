@@ -2944,7 +2944,7 @@ msgstr "Kijelölés megszüntetése azonos útvonalon"
 #: tfrmmain.actview.caption
 msgctxt "TFRMMAIN.ACTVIEW.CAPTION"
 msgid "View"
-msgstr "Nézet"
+msgstr "Nézőke"
 
 #: tfrmmain.actviewhistory.caption
 msgid "Show history of visited paths for active view"
@@ -2986,7 +2986,7 @@ msgstr "Kilépés"
 #: tfrmmain.btnf7.caption
 msgctxt "tfrmmain.btnf7.caption"
 msgid "Directory"
-msgstr "Könyvtár"
+msgstr "Új mappa"
 
 #: tfrmmain.btnf8.caption
 msgctxt "TFRMMAIN.BTNF8.CAPTION"
@@ -3189,7 +3189,7 @@ msgstr "Ked&vencek"
 
 #: tfrmmain.mnufiles.caption
 msgid "&Files"
-msgstr "&Fájlok"
+msgstr "&Fájl"
 
 #: tfrmmain.mnuhelp.caption
 msgctxt "TFRMMAIN.MNUHELP.CAPTION"
@@ -3198,7 +3198,7 @@ msgstr "Sú&gó"
 
 #: tfrmmain.mnumark.caption
 msgid "&Mark"
-msgstr "Jelö&lés"
+msgstr "&Kijelölés"
 
 #: tfrmmain.mnunetwork.caption
 msgctxt "tfrmmain.mnunetwork.caption"
@@ -3213,7 +3213,7 @@ msgstr "Gyűjtemény megnyitása"
 #: tfrmmain.mnushow.caption
 msgctxt "tfrmmain.mnushow.caption"
 msgid "&Show"
-msgstr "Megjele&ntés"
+msgstr "&Nézet"
 
 #: tfrmmain.mnutaboptions.caption
 msgid "Tab &Options"
@@ -10008,7 +10008,7 @@ msgstr ""
 
 #: ulng.rsabbrevdisplaydir
 msgid "<DIR>"
-msgstr "<MAPPA>"
+msgstr "<DIR>"
 
 #: ulng.rsabbrevdisplaylink
 msgid "<LNK>"
@@ -10081,7 +10081,7 @@ msgstr "Örökölt rendezés;A-Z rendezés"
 
 #: ulng.rscolattr
 msgid "Attr"
-msgstr "Attrib"
+msgstr "Attr."
 
 #: ulng.rscoldate
 msgctxt "ulng.rscoldate"
@@ -10090,7 +10090,7 @@ msgstr "Dátum"
 
 #: ulng.rscolext
 msgid "Ext"
-msgstr "Kit"
+msgstr "Kit."
 
 #: ulng.rscolname
 msgctxt "ulng.rscolname"
@@ -10427,6 +10427,10 @@ msgstr "Meghajtó szabad terület mutató"
 msgid "<no label>"
 msgstr "<nincs címke>"
 
+#: ulng.rsdriveunnamed
+msgid "unnamed"
+msgstr "névtelen"
+
 #: ulng.rsdrivenomedia
 msgid "<no media>"
 msgstr "<nincs adathordozó>"
@@ -10736,7 +10740,7 @@ msgstr "Nézőkönyv betűtípusa"
 #: ulng.rsfreemsg
 #, object-pascal-format
 msgid "%s of %s free"
-msgstr "%s szabad ebből: %s"
+msgstr "%s a(z) %s-ból szabad"
 
 #: ulng.rsfreemsgshort
 #, object-pascal-format
@@ -10948,7 +10952,7 @@ msgstr "G"
 
 #: ulng.rslegacydisplaysizesingleletterkilo
 msgid "K"
-msgstr "K"
+msgstr "k"
 
 #: ulng.rslegacydisplaysizesinglelettermega
 msgid "M"
@@ -12370,7 +12374,7 @@ msgstr "Válassza ki, hogy melyik fájltípushoz adja hozzá a \"%s\" kiterjeszt
 #: ulng.rsmsgselectedinfo
 #, object-pascal-format
 msgid "Selected: %s of %s, files: %d of %d, folders: %d of %d"
-msgstr "Kijelölt: %s / %s, fájlok: %d / %d, mappák: %d / %d"
+msgstr "%s / %s - %d / %d fájl, %d / %d mappa"
 
 #: ulng.rsmsgselectexecutablefile
 msgid "Select executable file for"

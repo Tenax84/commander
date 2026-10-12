@@ -13,7 +13,7 @@ uses
 
 var
 {$IFDEF DARKWIN}
-  gAppMode: Integer = 1;
+  gAppMode: Integer = 3; // pamForceLight
 {$ENDIF}
 {$IFDEF DARWIN}
   gModernUI: Boolean = True;

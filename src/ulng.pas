@@ -765,6 +765,7 @@ resourcestring
   // Drive status
   rsDriveNoMedia = '<no media>';
   rsDriveNoLabel = '<no label>';
+  rsDriveUnnamed = 'unnamed';
 
   // Edit
   rsEditNewFile = 'new.txt';

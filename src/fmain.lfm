@@ -303,7 +303,6 @@ object frmMain: TfrmMain
             Height = 1
             Top = 2
             Width = 344
-            Alignment = taCenter
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Left = 2
             BorderSpacing.Right = 2
@@ -475,7 +474,6 @@ object frmMain: TfrmMain
             Height = 1
             Top = 2
             Width = 0
-            Alignment = taCenter
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Left = 2
             BorderSpacing.Right = 2

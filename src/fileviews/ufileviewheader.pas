@@ -351,7 +351,7 @@ begin
   if FFileView.CurrentAddress<>'' then
     exit;
 
-  if IncludeTrailingPathDelimiter(FPathLabel.Caption) <> FFileView.CurrentPath then
+  if FPathLabel.Caption <> FFileView.CurrentPath + '*.*' then
     HintInfo^.HintStr := FFileView.CurrentPath;
 end;
 
@@ -371,7 +371,8 @@ end;
 
 procedure TFileViewHeader.UpdatePathLabel;
 begin
-  FPathLabel.Caption := MinimizeFilePath(FFileView.CurrentPath, FPathLabel.Canvas, FPathLabel.Width);
+  // Total Commander style: show the file mask after the path, e.g. "c:\dir\*.*"
+  FPathLabel.Caption := MinimizeFilePath(FFileView.CurrentPath + '*.*', FPathLabel.Canvas, FPathLabel.Width);
 end;
 
 procedure TFileViewHeader.UpdateColor;

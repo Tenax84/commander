@@ -262,23 +262,25 @@ begin
 
   with FColors[0].FilePanel do
   begin
-    CursorBorderColor := clHighlight;
+    CursorBorderColor := clBlack;
     ForeColor := clWindowText;
     BackColor := clWindow;
     BackColor2 := clWindow;
     MarkColor := clRed;
-    CursorColor := clHighlight;
-    CursorText := clHighlightText;
+    // Total Commander style light blue cursor
+    CursorColor := TColor($FFE8CC);
+    CursorText := clWindowText;
     GridLine := clSilver;
     InactiveCursorColor := clInactiveCaption;
     InactiveMarkColor := clMaroon;
   end;
   with FColors[0].Path do
   begin
-    ActiveColor := clHighlight;
-    ActiveFontColor := clHighlightText;
-    InactiveColor := clBtnFace;
-    InactiveFontColor := clBtnText;
+    // Total Commander style path header colors
+    ActiveColor := clActiveCaption;
+    ActiveFontColor := clCaptionText;
+    InactiveColor := clInactiveCaption;
+    InactiveFontColor := clInactiveCaptionText;
   end;
   with FColors[0].FreeSpaceInd do
   begin
