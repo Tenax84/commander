@@ -34,3 +34,12 @@ lib/
 # Application bundle for Mac OS
 *.app/
 .DS_Store
+
+# Tenax84 fork: helyi fájlok (nem kerülnek a repóba)
+*.old
+*.log
+/screenshots/
+/run/
+/settings/
+.claude/settings.local.json
+CLAUDE.local.md
