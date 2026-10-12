@@ -7,7 +7,7 @@ object frmStartingSplash: TfrmStartingSplash
   AutoSize = True
   BorderIcons = []
   BorderStyle = bsNone
-  Caption = 'Double Commander'
+  Caption = 'Commander'
   ClientHeight = 330
   ClientWidth = 206
   DefaultMonitor = dmPrimary
@@ -47,7 +47,7 @@ object frmStartingSplash: TfrmStartingSplash
       Width = 111
       BorderSpacing.Top = 6
       BorderSpacing.CellAlignHorizontal = ccaLeftTop
-      Caption = 'Double Commander'
+      Caption = 'Commander'
       Font.Color = clRed
       Font.Style = [fsBold]
       ParentColor = False

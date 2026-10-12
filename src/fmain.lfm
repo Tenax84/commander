@@ -3,7 +3,7 @@ object frmMain: TfrmMain
   Height = 370
   Top = 269
   Width = 760
-  Caption = 'Double Commander'
+  Caption = 'Commander'
   ClientHeight = 370
   ClientWidth = 760
   Constraints.MaxHeight = 32767
@@ -3099,7 +3099,7 @@ object frmMain: TfrmMain
   end
   object MainTrayIcon: TTrayIcon
     PopUpMenu = pmTrayIconMenu
-    Hint = 'Double Commander - click to restore'
+    Hint = 'Commander - click to restore'
     OnClick = MainTrayIconClick
     OnDblClick = MainTrayIconClick
     left = 220

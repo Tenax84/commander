@@ -180,7 +180,7 @@ begin
   if Length(FMessage) = 0 then begin
     FMessage:= rsMsgPasswordEnter
   end;
-  if not InputQuery('Double Commander', FMessage, True, S) then
+  if not InputQuery('Commander', FMessage, True, S) then
     FCtl.Stop
   else begin
     S:= S + LineEnding;

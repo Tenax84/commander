@@ -11,7 +11,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <AutoCreateForms Value="False"/>
-      <Title Value="Double Commander"/>
+      <Title Value="Commander"/>
       <Scaled Value="True"/>
       <ResourceType Value="res"/>
       <XPManifest>
@@ -38,7 +38,7 @@
       <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="3"/>
       <Attributes pvaPreRelease="True" pvaPrivateBuild="True"/>
-      <StringTable FileDescription="Double Commander" InternalName="DOUBLECMD" LegalCopyright="Copyright (C) 2006-2026 Alexander Koblov" ProductName="Double Commander"/>
+      <StringTable FileDescription="Commander" InternalName="DOUBLECMD" LegalCopyright="Copyright (C) 2006-2026 Alexander Koblov" ProductName="Commander"/>
     </VersionInfo>
     <BuildModes Count="5">
       <Item1 Name="Debug" Default="True"/>

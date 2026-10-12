@@ -1121,7 +1121,7 @@ procedure TfrmMain.FormCreate(Sender: TObject);
     end;
 
     Result := Format('%s%s %s%s',
-        ['Double Commander',
+        ['Commander',
         AServerName,
         Copy2Space(dcVersion),
         ARevision]

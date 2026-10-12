@@ -325,7 +325,7 @@ end;
 
 function MainRequestProc(PluginNr, RequestType: Integer; CustomTitle, CustomText: String; var ReturnedText: String): Bool;
 begin
-  if CustomTitle = '' then CustomTitle:= 'Double Commander';
+  if CustomTitle = '' then CustomTitle:= 'Commander';
 
   case RequestType of
     RT_Other:

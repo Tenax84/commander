@@ -128,7 +128,7 @@ object frmAbout: TfrmAbout
       Top = 80
       Width = 111
       BorderSpacing.CellAlignHorizontal = ccaLeftTop
-      Caption = 'Double Commander'
+      Caption = 'Commander'
       Font.Color = clRed
       Font.Style = [fsBold]
       ParentColor = False

@@ -85,7 +85,7 @@ resourcestring
   rsMsgNoFreeSpaceRetry = 'No enough free space on target drive, Retry?';
   rsMsgSetVolumeLabel = 'Set volume label';
   rsMsgVolumeLabel = 'Volume label:';
-  rsMsgRestartForApplyChanges = 'Please, restart Double Commander in order to apply changes';
+  rsMsgRestartForApplyChanges = 'Please, restart Commander in order to apply changes';
   rsMsgEnterName = 'Enter name:';
   rsMsgEnterFileExt = 'Enter file extension:';
   rsMsgDefaultCustomActionName = 'Custom action';
@@ -213,13 +213,13 @@ resourcestring
   rsMsgErrCanNotConnect = 'Can not connect to server: "%s"';
   rsMsgErrSaveAssociation = 'Can not save association!';
   rsMsgFileOperationsActive = 'File operations active';
-  rsMsgFileOperationsActiveLong = 'Some file operations have not yet finished. Closing Double Commander may result in data loss.';
+  rsMsgFileOperationsActiveLong = 'Some file operations have not yet finished. Closing Commander may result in data loss.';
   rsMsgConfirmQuit = 'Are you sure you want to quit?';
   rsMsgCanNotCopyMoveItSelf = 'You can not copy/move a file "%s" to itself!';
   rsMsgTabRenameCaption = 'Rename tab';
   rsMsgTabRenamePrompt = 'New tab name:';
   rsMsgInvalidPlugin = 'This is not a valid plugin!';
-  rsMsgInvalidPluginArchitecture = 'This plugin is built for Double Commander for %s.%sIt can not work with Double Commander for %s!';
+  rsMsgInvalidPluginArchitecture = 'This plugin is built for Commander for %s.%sIt can not work with Commander for %s!';
   rsMsgErrCreateFileDirectoryExists = 'There already exists a directory named "%s".';
   rsMsgDeletePartiallyCopied = 'Delete the partially copied file ?';
   rsMsgInvalidCommandLine = 'Error in command line';
@@ -299,11 +299,11 @@ resourcestring
   rsHotDirForceSortingOrderChoices = 'none;Name, a-z;Name, z-a;Ext, a-z;Ext, z-a;Size 9-0;Size 0-9;Date 9-0;Date 0-9';
 
   //Special dir related
-  rsMsgSpecialDirUseDC = 'Use Double Commander special path...';
+  rsMsgSpecialDirUseDC = 'Use Commander special path...';
   rsMsgSpecialDirUseTC = 'Use Windows special folder (TC)...';
   rsMsgSpecialDirUseOther = 'Use other Windows special folder...';
   rsMsgSpecialDirEnvVar = 'Use environment variable...';
-  rsMsgSpecialDirMkDCRel = 'Make relative to Double Commander special path...';
+  rsMsgSpecialDirMkDCRel = 'Make relative to Commander special path...';
   rsMsgSpecialDirMkTCTel = 'Make relative to Windows special folder (TC)...';
   rsMsgSpecialDirMkWnRel = 'Make relative to other Windows special folder...';
   rsMsgSpecialDirMkEnvRel = 'Make relative to environment variable...';
@@ -313,7 +313,7 @@ resourcestring
   rsMsgSpecialDirBrowsSel = 'Browse and use selected path';
 
   rsMsgSpecialDir = 'Special Dirs';
-  rsMsgSpecialDirGotoDC = 'Go to Double Commander special path...';
+  rsMsgSpecialDirGotoDC = 'Go to Commander special path...';
   rsMsgSpecialDirGotoTC = 'Go to Windows special folder (TC)...';
   rsMsgSpecialDirGotoOther = 'Go to other Windows special folder...';
   rsMsgSpecialDirGotoEnvVar = 'Go to environment variable...';
@@ -497,7 +497,7 @@ resourcestring
   rsFileOpSetPropertyErrorOptions = 'Ask;Don''t set anymore;Ignore errors';
 
   // Viewer
-  rsViewAboutText = 'Internal Viewer of Double Commander.';
+  rsViewAboutText = 'Internal Viewer of Commander.';
   rsViewNotFound = '%s not found!';
   rsViewEncoding = 'Encoding';
   rsViewNewSize = 'New Size';
@@ -517,7 +517,7 @@ resourcestring
   rsEditHintCursorPos = 'Cursor Position';
   rsEditHintInsertMode = 'Insert Mode';
   rsEditHintSelectionMode = 'Selection Mode';
-  rsEditAboutText = 'Internal Editor of Double Commander.';
+  rsEditAboutText = 'Internal Editor of Commander.';
   // Editor Highlighters
   rsSynLangPlainText = 'Plain text';
   rsSynDefaultText   = 'Default text';
@@ -1025,7 +1025,7 @@ resourcestring
   rsMsgTCConfigNotFound = 'Error! Cannot find the TC configuration file:'+#$0A+'%s';
   rsMsgTCExecutableNotFound = 'Error! Cannot find the TC configuration executable:'+#$0A+'%s';
   rsMsgTCisRunning = 'Error! TC is still running but it should be closed for this operation.'+#$0A+'Close it and press OK or press CANCEL to abort.';
-  rsMsgAllDCIntCmds = 'All Double Commander internal commands';
+  rsMsgAllDCIntCmds = 'All Commander internal commands';
 
   // macOS Modern Form Sytle
   rsMFSTBITreeViewTitle = 'TreeView';

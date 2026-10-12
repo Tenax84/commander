@@ -5,7 +5,7 @@ object frmMultiRenameWait: TfrmMultiRenameWait
   Width = 394
   AutoSize = True
   BorderStyle = bsDialog
-  Caption = 'Double Commander'
+  Caption = 'Commander'
   ChildSizing.LeftRightSpacing = 12
   ChildSizing.TopBottomSpacing = 12
   ClientHeight = 87

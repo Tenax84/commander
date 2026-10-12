@@ -49,6 +49,8 @@ A TC-szerű megjelenés nagyrészt **kezdőérték-változtatás**, nem új funk
 - `src/fmain.pas`/`.lfm`: `[kötetcímke]` a szabad hely előtt, balra igazítva; F-gombok `F3 Nézőke` formában, F9 gomb nélkül.
 - `src/ulng.pas`, `language/doublecmd.hu.po`: TC-s magyar szóhasználat (Fájl, Kijelölés, Nézet, `<DIR>` stb.).
 - `pixmaps/tcstyle/` (új ikontéma): TC-szerű ikonok a felső eszköztár gombjaihoz (Codexszel generálva), minden más ikont a `dctheme`-től örököl (`Inherits=dctheme`). Az `uglobs.pas`-ban ez az alapértelmezett ikontéma.
+- Programnév: a felhasználónak látható helyeken „Commander” a „Double Commander” helyett (ablakcím, `Application.Title`, a `doublecmd.lpi` verzióinformációja, Névjegy, üzenetablakok, `ulng.pas`, `doublecmd.hu.po`). Az exe, a konfigurációs fájlok és a belső azonosítók neve (`doublecmd*`) nem változott, ahogy a DC weboldalára mutató menüpont és a macOS-es szöveg sem. A többi nyelvi `.po` fájlban még „Double Commander” szerepel.
+- `src/doublecmd.ico`: TC-szerű kék hajlékonylemez (Codexszel generálva, 16–256 px). Minden méretet BMP-ként kell tárolni, mert a PNG-tömörítésű bejegyzéseket az LCL nem tudja beolvasni („Bitmap with unknown compression”). A `doublecmd.res` fordításkor ebből készül.
 - `src/platform/win/urestoreflicker.pas` (új): kiküszöböli a minimalizálásból visszaállításkor jelentkező fekete villanást. A főablak WndProc-ját subclassolja; visszaállításkor DWM-cloakkal elrejti az ablakot, szinkron kirajzol mindent, és csak utána jeleníti meg (legfeljebb 300 ms múlva). Az `fmain.pas` telepíti, csak Windowson.
 
 Módosításnál vedd figyelembe:

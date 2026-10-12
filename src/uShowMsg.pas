@@ -144,7 +144,7 @@ uses
   fMsg, uLng, Buttons, Controls, uLog, uGlobs, uDebug;
 
 const
-  cMsgName = 'Double Commander';
+  cMsgName = 'Commander';
 
 var
   cLngButton: array[TMyMsgButton] of String;

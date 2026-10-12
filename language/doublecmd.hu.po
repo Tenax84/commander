@@ -171,8 +171,8 @@ msgstr "Revízió"
 
 #: tfrmabout.lbltitle.caption
 msgctxt "tfrmabout.lbltitle.caption"
-msgid "Double Commander"
-msgstr "Double Commander"
+msgid "Commander"
+msgstr "Commander"
 
 #: tfrmabout.lblversion.caption
 msgctxt "tfrmabout.lblversion.caption"
@@ -3070,8 +3070,8 @@ msgstr "/"
 
 #: tfrmmain.caption
 msgctxt "TFRMMAIN.CAPTION"
-msgid "Double Commander"
-msgstr "Double Commander"
+msgid "Commander"
+msgstr "Commander"
 
 #: tfrmmain.lblcommandpath.caption
 msgctxt "tfrmmain.lblcommandpath.caption"
@@ -3854,8 +3854,8 @@ msgstr "Fájl elérési útja"
 
 #: tfrmmultirenamewait.caption
 msgctxt "TFRMMULTIRENAMEWAIT.CAPTION"
-msgid "Double Commander"
-msgstr "Double Commander"
+msgid "Commander"
+msgstr "Commander"
 
 #: tfrmmultirenamewait.lblmessage.caption
 msgid "Click OK when you have closed the editor to load the changed names!"
@@ -8893,8 +8893,8 @@ msgstr "&Megabájt"
 
 #: tfrmstartingsplash.caption
 msgctxt "TFRMSTARTINGSPLASH.CAPTION"
-msgid "Double Commander"
-msgstr "Double Commander"
+msgid "Commander"
+msgstr "Commander"
 
 #: tfrmstartingsplash.lblbuild.caption
 msgctxt "TFRMSTARTINGSPLASH.LBLBUILD.CAPTION"
@@ -8931,8 +8931,8 @@ msgstr "Felülvizsgálat"
 
 #: tfrmstartingsplash.lbltitle.caption
 msgctxt "TFRMSTARTINGSPLASH.LBLTITLE.CAPTION"
-msgid "Double Commander"
-msgstr "Double Commander"
+msgid "Commander"
+msgstr "Commander"
 
 #: tfrmstartingsplash.lblversion.caption
 msgctxt "TFRMSTARTINGSPLASH.LBLVERSION.CAPTION"
@@ -10444,8 +10444,8 @@ msgid "<no media>"
 msgstr "<nincs adathordozó>"
 
 #: ulng.rseditabouttext
-msgid "Internal Editor of Double Commander."
-msgstr "A Double Commander belső szerkesztője."
+msgid "Internal Editor of Commander."
+msgstr "A Commander belső szerkesztője."
 
 #: ulng.rseditgotolinequery
 msgid "Goto line:"
@@ -11402,8 +11402,8 @@ msgid "Account:"
 msgstr "Fiók:"
 
 #: ulng.rsmsgalldcintcmds
-msgid "All Double Commander internal commands"
-msgstr "Az összes Double Commander belső parancs"
+msgid "All Commander internal commands"
+msgstr "Az összes Commander belső parancs"
 
 #: ulng.rsmsgapplicationname
 #, object-pascal-format
@@ -11825,8 +11825,8 @@ msgid "File operations active"
 msgstr "Aktív fájlműveletek"
 
 #: ulng.rsmsgfileoperationsactivelong
-msgid "Some file operations have not yet finished. Closing Double Commander may result in data loss."
-msgstr "Néhány fájlművelet még nem fejeződött be. A Double Commander bezárása adatvesztést okozhat."
+msgid "Some file operations have not yet finished. Closing Commander may result in data loss."
+msgstr "Néhány fájlművelet még nem fejeződött be. A Commander bezárása adatvesztést okozhat."
 
 #: ulng.rsmsgfilepathovermaxpath
 #, object-pascal-format
@@ -12113,8 +12113,8 @@ msgstr "Ez nem érvényes bővítmény!"
 
 #: ulng.rsmsginvalidpluginarchitecture
 #, object-pascal-format
-msgid "This plugin is built for Double Commander for %s.%sIt can not work with Double Commander for %s!"
-msgstr "Ez a bővítmény a Double Commander %s verziójához készült.%s Nem működik a Double Commander %s verziójával!"
+msgid "This plugin is built for Commander for %s.%sIt can not work with Commander for %s!"
+msgstr "Ez a bővítmény a Commander %s verziójához készült.%s Nem működik a Commander %s verziójával!"
 
 #: ulng.rsmsginvalidquoting
 msgid "Invalid quoting"
@@ -12366,8 +12366,8 @@ msgid "Do you want to replace this text?"
 msgstr "Le szeretné cserélni ezt a szöveget?"
 
 #: ulng.rsmsgrestartforapplychanges
-msgid "Please, restart Double Commander in order to apply changes"
-msgstr "Kérem, indítsa újra a Double Commander-t a változtatások érvényesítéséhez"
+msgid "Please, restart Commander in order to apply changes"
+msgstr "Kérem, indítsa újra a Commander-t a változtatások érvényesítéséhez"
 
 #: ulng.rsmsgscriptcantfindlibrary
 #, object-pascal-format
@@ -12421,8 +12421,8 @@ msgid "Use environment variable..."
 msgstr "Környezeti változó használata..."
 
 #: ulng.rsmsgspecialdirgotodc
-msgid "Go to Double Commander special path..."
-msgstr "Ugrás a Double Commander speciális útvonalára..."
+msgid "Go to Commander special path..."
+msgstr "Ugrás a Commander speciális útvonalára..."
 
 #: ulng.rsmsgspecialdirgotoenvvar
 msgid "Go to environment variable..."
@@ -12445,8 +12445,8 @@ msgid "Make path absolute"
 msgstr "Abszolút útvonal létrehozása"
 
 #: ulng.rsmsgspecialdirmkdcrel
-msgid "Make relative to Double Commander special path..."
-msgstr "Relatívvá tétel a Double Commander speciális útvonalához..."
+msgid "Make relative to Commander special path..."
+msgstr "Relatívvá tétel a Commander speciális útvonalához..."
 
 #: ulng.rsmsgspecialdirmkenvrel
 msgid "Make relative to environment variable..."
@@ -12461,8 +12461,8 @@ msgid "Make relative to other Windows special folder..."
 msgstr "Relatívvá tétel más Windows speciális mappához..."
 
 #: ulng.rsmsgspecialdirusedc
-msgid "Use Double Commander special path..."
-msgstr "Double Commander speciális útvonal használata..."
+msgid "Use Commander special path..."
+msgstr "Commander speciális útvonal használata..."
 
 #: ulng.rsmsgspecialdirusehotdir
 msgid "Use hotdir path"
@@ -14507,8 +14507,8 @@ msgid "Recycle Bin"
 msgstr "Lomtár"
 
 #: ulng.rsviewabouttext
-msgid "Internal Viewer of Double Commander."
-msgstr "A Double Commander belső nézegetője."
+msgid "Internal Viewer of Commander."
+msgstr "A Commander belső nézegetője."
 
 #: ulng.rsviewbadquality
 msgid "Bad Quality"

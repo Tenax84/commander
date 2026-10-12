@@ -106,7 +106,7 @@ const
     'Dmytro Zheludko (doublecmd@zheludko.mail.ua)' + cIndention +
     'Andryei Gudyak - main icon' + cIndention +
     'translators (see details in language files)  ' + LineEnding + LineEnding +
-    'Double Commander uses icons from:' + LineEnding +
+    'Commander uses icons from:' + LineEnding +
     '- Tango Icon Library (http://tango.freedesktop.org/Tango_Icon_Library)' + LineEnding +
     '- Silk icon set 1.3 by Mark James (http://www.famfamfam.com/lab/icons/silk/)' + LineEnding +
     '- Elementary icon theme 2.7.1 (https://github.com/elementary/icons)' + LineEnding +

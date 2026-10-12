@@ -208,7 +208,7 @@ begin
   case Mode of
   PK_VOL_ASK:
     begin
-      if not ShowInputQuery('Double Commander', rsMsgSelLocNextVol, ArcName) then
+      if not ShowInputQuery('Commander', rsMsgSelLocNextVol, ArcName) then
         Result := 0; // Abort operation
     end;
   PK_VOL_NOTIFY:

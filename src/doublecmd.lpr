@@ -151,7 +151,7 @@ begin
   // see http://bugs.freepascal.org/view.php?id=22044
   Application.BidiMode:= bdLeftToRight;
 
-  Application.Title:='Double Commander';
+  Application.Title:='Commander';
   Application.Initialize;
 
 {$IF DEFINED(DARWIN)}

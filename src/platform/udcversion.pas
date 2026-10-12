@@ -539,7 +539,7 @@ var
   S: String;
 {$ENDIF}
 begin
-  Result:= Format('Double Commander' + LineEnding +
+  Result:= Format('Commander' + LineEnding +
                   'Version: %s' + LineEnding +
                   'Revision: %s' + LineEnding +
                   'Commit: %s' + LineEnding +
