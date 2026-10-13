@@ -2071,7 +2071,7 @@ begin
   gRenameSelOnlyName := False;
   gShowCopyTabSelectPanel := False;
   gUseTrash := True;
-  gSkipFileOpError := False;
+  gSkipFileOpError := True;
   gTypeOfDuplicatedRename := drLegacyWithCopy;
   gDefaultDropEffect:= True;
   gShowDialogOnDragDrop := True;
