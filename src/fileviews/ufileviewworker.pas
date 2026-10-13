@@ -139,6 +139,11 @@ type
     procedure Abort; override;
 
     {en
+       Total Commander style: creates the up-dir '..' entry of APath.
+    }
+    class function CreateUpDirFile(const fs: IFileSource; const APath: String): TFile;
+
+    {en
        Prepare filter string based on options.
     }
     class function PrepareFilter(const aFileFilter: String;
@@ -257,7 +262,8 @@ uses
   uFileSourceOperationTypes, uOSUtils, DCStrUtils, uDCUtils, uExceptions,
   uGlobs, uPixMapManager, uFileSourceProperty,
   uFileSourceCalcStatisticsOperation,
-  uFileSourceOperationOptions;
+  uFileSourceOperationOptions
+  {$IFDEF MSWINDOWS}, uFileSystemFileSource, uNetPathProbe{$ENDIF};
 
 {$IFDEF timeFileView}
 procedure filelistPrintTime(const AMessage: String); inline;
@@ -437,6 +443,26 @@ begin
   finally
     FListOperationLock.Release;
   end;
+{$IFDEF MSWINDOWS}
+  // Total Commander style: interrupt a blocking access to a network path
+  if Assigned(Thread) then
+    NetCancelThread(Thread);
+{$ENDIF}
+end;
+
+class function TFileListBuilder.CreateUpDirFile(const fs: IFileSource; const APath: String): TFile;
+begin
+  Result := fs.CreateFileObject(APath);
+  Result.Name := '..';
+  if fpAttributes in Result.SupportedProperties then
+  begin
+    if Result.AttributesProperty is TNtfsFileAttributesProperty then
+      Result.Attributes := FILE_ATTRIBUTE_DIRECTORY
+    else if Result.AttributesProperty is TUnixFileAttributesProperty then
+      Result.Attributes := S_IFDIR
+    else
+      Result.Attributes := faFolder;
+  end;
 end;
 
 procedure TFileListBuilder.Execute;
@@ -449,6 +475,12 @@ begin
   try
     if Aborted then
       Exit;
+
+{$IFDEF MSWINDOWS}
+    // Total Commander style: the thread may have run an aborted worker before
+    if Assigned(Thread) then
+      NetCancelReset;
+{$ENDIF}
 
     if fsoList in FFileSource.GetOperationsTypes then
     begin
@@ -483,6 +515,11 @@ begin
     if Aborted then
       Exit;
 
+    // Total Commander style: show '..' also when the list could not be
+    // retrieved (e.g. unreachable network path)
+    if not Assigned(FileSourceFiles) then
+      FileSourceFiles := TFiles.Create(FCurrentPath);
+
     if Assigned(FileSourceFiles) then
     begin
       // Check if up-dir '..' is present.
@@ -499,7 +536,13 @@ begin
       if (not HaveUpDir) and
          ((not FFileSource.IsPathAtRoot(FCurrentPath)) or
           // Add '..' to go to higher level file source, if there is more than one.
-          ((FFileSourceIndex > 0) and not (fspNoneParent in FFileSource.Properties))) then
+          ((FFileSourceIndex > 0) and not (fspNoneParent in FFileSource.Properties))
+{$IFDEF MSWINDOWS}
+          // Total Commander style: from the root of a network share go to the
+          // list of shares of the host (see TFileView.ChangePathToParent)
+          or (FFileSource.IsClass(TFileSystemFileSource) and (Pos('\\', FCurrentPath) = 1))
+{$ENDIF}
+         ) then
       begin
         AFile := FFileSource.CreateFileObject(FCurrentPath);
         AFile.Name := '..';

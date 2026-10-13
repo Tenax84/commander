@@ -142,7 +142,7 @@ implementation
 uses
   uOSUtils, DCOSUtils, DCDateTimeUtils, uGlobs, uGlobsPaths, uLog, uLng,
 {$IFDEF MSWINDOWS}
-  DCWindows, uMyWindows, Windows,
+  DCWindows, uMyWindows, Windows, uNetPathProbe,
 {$ENDIF}
 {$IFDEF UNIX}
   BaseUnix, uUsersGroups, LazUTF8, DCUnix, uMyUnix,
@@ -839,6 +839,12 @@ var
   realPath: String;
 begin
   realPath:= self.GetRealPath(NewDir);
+{$IFDEF MSWINDOWS}
+  // Total Commander style: do not access network paths here, the file list
+  // is loaded in the background and an unreachable path is shown in the panel
+  if IsNetworkPath(realPath) then
+    Exit(True);
+{$ENDIF}
   if not mbDirectoryExists(realPath) then
     Result := False
   else
@@ -863,6 +869,10 @@ end;
 function TFileSystemFileSource.GetParentDir(sPath: String): String;
 begin
   Result:= inherited GetParentDir(sPath);
+{$IFDEF MSWINDOWS}
+  // Total Commander style: do not access network paths here
+  if not IsNetworkPath(Result) then
+{$ENDIF}
   Result:= GetDeepestExistingPath(Result);
   if Length(Result) = 0 then Result:= gpExePath;
 end;

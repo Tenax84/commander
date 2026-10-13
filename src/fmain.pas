@@ -979,7 +979,7 @@ uses
   fOptionsToolbarBase, fOptionsToolbarMiddle, fEditor, uColumns, StrUtils, uSysFolders,
   uColumnsFileView, dmHigh, uFileSourceOperationMisc, uTCStyle
 {$IFDEF MSWINDOWS}
-  , uShellFileSource, uNetworkThread, uMyWindows, uRestoreFlicker
+  , uShellFileSource, uNetworkThread, uMyWindows, uRestoreFlicker, uNetPathProbe
 {$ENDIF}
 {$IFDEF DARWIN}
   , uCocoaModernFormConfig
@@ -6248,7 +6248,8 @@ begin
 
               sDir:= ReplaceTilde(sDir);
               sDir:= GetAbsoluteFileName(ActiveFrame.CurrentPath, sDir);
-              if mbFileExists(sDir) then //if user entered an existing file, let's switch to the parent folder AND select that file
+              // Total Commander style: do not access network paths here
+              if {$IFDEF MSWINDOWS}(not IsNetworkPath(sDir)) and{$ENDIF} mbFileExists(sDir) then //if user entered an existing file, let's switch to the parent folder AND select that file
               begin
                 sFilename:= ExtractFileName(sDir);
                 sDir:= ExtractFileDir(sDir);
@@ -6449,7 +6450,9 @@ procedure TfrmMain.LoadTabsCommandLine(Params: TCommandLineParams);
       aPath:= ReplaceEnvVars(ReplaceTilde(aPath));
       if (gVfsModuleList.GetFileSource(aPath) = nil) then
       begin
-        if not mbFileSystemEntryExists(aPath) then
+        // Total Commander style: do not access network paths here
+        if {$IFDEF MSWINDOWS}(not IsNetworkPath(aPath)) and{$ENDIF}
+           not mbFileSystemEntryExists(aPath) then
           aPath:= GetDeepestExistingPath(aPath);
       end;
       if Length(aPath) <> 0 then
@@ -6458,7 +6461,8 @@ procedure TfrmMain.LoadTabsCommandLine(Params: TCommandLineParams);
           AddTab(aNoteBook, aPath)
         else begin
           AFileView:= aNoteBook.ActivePage.FileView;
-          if mbFileExists(aPath) then
+          // Total Commander style: do not access network paths here
+          if {$IFDEF MSWINDOWS}(not IsNetworkPath(aPath)) and{$ENDIF} mbFileExists(aPath) then
           begin
             if ChooseFileSource(AFileView, ExtractFileDir(aPath)) then
               AFileView.SetActiveFile(ExtractFileName(aPath));

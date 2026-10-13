@@ -194,7 +194,7 @@ uses
   fConfirmCommandLine, uLog, DCConvertEncoding, LazUTF8
   {$IF DEFINED(MSWINDOWS)}
   , Windows, Shlwapi, WinRT.Classes, uMyWindows, JwaWinNetWk,
-    uShlObjAdditional, DCWindows, uNetworkThread, uClipboard
+    uShlObjAdditional, DCWindows, uNetworkThread, uClipboard, uNetPathProbe
   {$ENDIF}
   {$IF DEFINED(UNIX)}
   , BaseUnix, Unix, uMyUnix, dl
@@ -718,12 +718,19 @@ begin
          mbWaitLabelChange(Drv, DriveLabel);
     end
   // Try to connect to mapped network drive
-  else if (Drive^.DriveType = dtNetwork) and
-     TryMount and (not mbDriveReady(Drv)) then
+  // Total Commander style: do not access the network drive here (it would
+  // freeze the UI), an unreachable drive is reported in the file panel
+  else if (Drive^.DriveType = dtNetwork) then
     begin
-      wsLocalName  := CeUtf8ToUtf16(ExtractFileDrive(Drive^.Path));
-      wsRemoteName := CeUtf8ToUtf16(Drive^.DriveLabel);
-      TNetworkThread.Connect(PWideChar(wsLocalName), PWideChar(wsRemoteName), RESOURCETYPE_DISK);
+      Result:= NetFileSystemEntryExists(Drv, True);
+      if TryMount and (not Result) then
+      begin
+        wsLocalName  := CeUtf8ToUtf16(ExtractFileDrive(Drive^.Path));
+        wsRemoteName := CeUtf8ToUtf16(Drive^.DriveLabel);
+        Result:= TNetworkThread.Connect(PWideChar(wsLocalName), PWideChar(wsRemoteName), RESOURCETYPE_DISK) = NO_ERROR;
+        if Result then NetPathResetCache(Drv);
+      end;
+      Exit;
     end
   // Try to unlock BitLocker Drive
   else if TryMount then begin

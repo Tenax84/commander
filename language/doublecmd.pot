@@ -12075,6 +12075,11 @@ msgstr ""
 msgid "Loading file list..."
 msgstr ""
 
+#: ulng.rsmsgpathnotavailable
+#, object-pascal-format
+msgid "The path is not available:\n%s"
+msgstr ""
+
 #: ulng.rsmsglocatetcconfiguation
 msgid "Locate TC configuration file (wincmd.ini)"
 msgstr ""

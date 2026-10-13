@@ -12138,6 +12138,11 @@ msgstr "A kulcs átalakítása %f másodpercet vett igénybe."
 msgid "Loading file list..."
 msgstr "Fájllista betöltése..."
 
+#: ulng.rsmsgpathnotavailable
+#, object-pascal-format
+msgid "The path is not available:\n%s"
+msgstr "Az útvonal nem érhető el:\n%s"
+
 #: ulng.rsmsglocatetcconfiguation
 msgid "Locate TC configuration file (wincmd.ini)"
 msgstr "Keresse meg a TC konfigurációs fájlt (wincmd.ini)"

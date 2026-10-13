@@ -202,6 +202,8 @@ resourcestring
   rsMsgTargetDir = 'Target path:';
   rsMsgURL = 'URL:';
   rsMsgLoadingFileList = 'Loading file list...';
+  // Total Commander style: shown in the middle of the file panel
+  rsMsgPathNotAvailable = 'The path is not available:'#10'%s';
   rsMsgNoFiles = 'No files';
   rsMsgErrSetAttribute = 'Can not set attributes for "%s"';
   rsMsgErrSetDateTime = 'Can not set date/time for "%s"';

@@ -113,12 +113,14 @@ type
     FFileViewWorkers: TFileViewWorkers;
     FFlags: TFileViewFlags;
     FPathAvailable: Boolean;     //<en Cached availability of the current path (used by the tab marker)
+    FNetWatchPending: Boolean;   //<en Total Commander style: watch is added when the network path is reachable
     FHashedFiles: TBucketList;  //<en Contains pointers to file source files for quick checking if a file object is still valid
     FHashedNames: TStringHashListUtf8;
     FPendingFilesChanges: TFPList;
     FPendingFilesTimer: TTimer;
     FReloadNeeded: Boolean;     //<en If file list should be reloaded
     FWorkersThread: TFunctionThread;
+    FStuckWorkersThreads: TFPList; //<en Total Commander style: threads still running aborted workers
     FReloadTimer: TTimer;
     FLoadFilesStartTime: TDateTime;
     FLoadFilesFinishTime: TDateTime;
@@ -224,6 +226,8 @@ type
                                    NewFilesPosition: TNewFilesPosition;
                                    UpdatedFilesPosition: TUpdatedFilesPosition);
     procedure LoadingFileListTimer(Sender: TObject);
+    function CanChangePathToParent: Boolean;
+    procedure ShowUpDirOnly;
     procedure FileSourceEventListener(var params: TFileSourceEventParams);
     procedure ReloadTimerEvent(Sender: TObject);
     procedure WatcherEvent(const EventData: TFSWatcherEventData);
@@ -552,6 +556,11 @@ type
     property Path[FileSourceIndex, PathIndex: Integer]: String read GetPath;
     property PathsCount[FileSourceIndex: Integer]: Integer read GetPathsCount;
     property PathAvailable: Boolean read FPathAvailable;
+    {en
+       Total Commander style: message shown in the middle of the panel
+       (loading a slow file list, unreachable path), empty if none.
+    }
+    function PanelMessage: String;
 
     property Sorting: TFileSortings read FSortings write SetSorting;
     property WatcherActive: Boolean read GetWatcherActive;
@@ -623,7 +632,7 @@ uses
   uDCUtils, uDebug, uLng, uShowMsg, uFileSystemFileSource, uFileSourceUtil,
   uFileViewNotebook, uSearchTemplate, uKeyboard, uFileFunctions,
   fMain, uSearchResultFileSource, uFileSourceProperty, uVfsModule, uFileViewWithPanels,
-  LCLVersion;
+  LCLVersion{$IFDEF MSWINDOWS}, uNetPathProbe, uWinNetFileSource{$ENDIF};
 
 const
   MinimumReloadInterval  = 1000; // 1 second
@@ -704,7 +713,7 @@ begin
   FReloadTimer.OnTimer := @ReloadTimerEvent;
   FLoadingFileListLongTimer := TTimer.Create(Self);
   FLoadingFileListLongTimer.Enabled := False;
-  FLoadingFileListLongTimer.Interval := 2000;
+  FLoadingFileListLongTimer.Interval := 500; // Total Commander style: show the loading message sooner
   FLoadingFileListLongTimer.OnTimer := @LoadingFileListTimer;
 
   BorderStyle := bsNone; // Before Create or the window handle may be recreated
@@ -731,6 +740,17 @@ begin
     DbgWorkersThread := FWorkersThread;
     TFunctionThread.Finalize(FWorkersThread);
     DCDebug('Finalized workers thread   ', hexStr(DbgWorkersThread));
+  end;
+
+  // Total Commander style: wait until the aborted workers finish
+  if Assigned(FStuckWorkersThreads) then
+  begin
+    for i := 0 to FStuckWorkersThreads.Count - 1 do
+    begin
+      DbgWorkersThread := TFunctionThread(FStuckWorkersThreads[i]);
+      TFunctionThread.Finalize(DbgWorkersThread);
+    end;
+    FreeAndNil(FStuckWorkersThreads);
   end;
 
   // Now all the workers can be safely freed.
@@ -948,10 +968,35 @@ function TFileView.DimColor(AColor: TColor): TColor;
 begin
   if (not Active) and (gInactivePanelBrightness < 100) then
     Result := ModColor(AColor, gInactivePanelBrightness)
-  else if FLoadingFileListLongTime then
-    Result := DarkColor(AColor, 25)
+  // Total Commander style: the panel is not darkened while loading,
+  // a message is shown in the middle of the panel instead (see PanelMessage)
   else
     Result := AColor;
+end;
+
+function TFileView.PanelMessage: String;
+var
+  AError: String = '';
+begin
+  if IsLoadingFileList then
+  begin
+    if FLoadingFileListLongTime then
+      Result := rsMsgLoadingFileList
+    else
+      Result := EmptyStr;
+    Exit;
+  end;
+{$IFDEF MSWINDOWS}
+  AError := NetPathError(CurrentPath);
+{$ENDIF}
+  if (Length(AError) > 0) or (not FPathAvailable) then
+  begin
+    Result := Format(rsMsgPathNotAvailable, [CurrentPath]);
+    if Length(AError) > 0 then
+      Result := Result + LineEnding + LineEnding + AError;
+  end
+  else
+    Result := EmptyStr;
 end;
 
 procedure TFileView.DisplayFileListChanged;
@@ -1007,6 +1052,14 @@ procedure TFileView.DoHandleKeyDownWhenLoading(var Key: Word; Shift: TShiftState
 begin
   case Key of
     VK_BACK:
+      begin
+        ChangePathToParent(True);
+        Key := 0;
+      end;
+    // Total Commander style: Enter on '..' shown while loading (see ShowUpDirOnly)
+    VK_RETURN:
+      if FLoadingFileListLongTime and (Shift = []) and
+         Assigned(GetActiveDisplayFile) and (GetActiveDisplayFile.FSFile.Name = '..') then
       begin
         ChangePathToParent(True);
         Key := 0;
@@ -1556,14 +1609,20 @@ begin
   // Go to it if it is the same as last loaded file list.
   if (FSIndex >= 0) and
      FHistory.FileSource[FSIndex].Equals(FLastLoadedFileSource) and
-     (FHistory.Path[FSIndex, PathIndex] = FLastLoadedPath) then
+     (FHistory.Path[FSIndex, PathIndex] = FLastLoadedPath)
+     // Total Commander style: the list may have been cleared on path change
+     and FileListLoaded and (FAllDisplayFiles.Count > 0) then
   begin
     // Don't reload file list because we already have it.
     Flags := Flags + [fvfDontLoadFiles];
     GoToHistoryIndex(FSIndex, PathIndex);
     Flags := Flags - [fvfDontLoadFiles];
   end
-  else
+  // Total Commander style: go back and reload the previous directory
+  else if FSIndex >= 0 then
+    GoToHistoryIndex(FSIndex, PathIndex)
+  // Total Commander style: keep '..' shown while loading (see ShowUpDirOnly)
+  else if not ((not Assigned(FLastLoadedFileSource)) and FileListLoaded) then
     ClearFiles;
 end;
 
@@ -2174,6 +2233,33 @@ begin
 
   StopWorkers;
 
+  // Total Commander style: an aborted worker may still be blocked (unreachable
+  // network path), do not let the new file list wait for it
+  if Assigned(FWorkersThread) then
+  begin
+    i := 0;
+    while (i < FFileViewWorkers.Count) and FFileViewWorkers[i].CanBeDestroyed do
+      Inc(i);
+    if i < FFileViewWorkers.Count then
+    begin
+      if not Assigned(FStuckWorkersThreads) then
+        FStuckWorkersThreads := TFPList.Create;
+      FWorkersThread.Finish;
+      FStuckWorkersThreads.Add(FWorkersThread);
+      FWorkersThread := nil;
+    end;
+  end;
+  if Assigned(FStuckWorkersThreads) then
+  begin
+    for i := FStuckWorkersThreads.Count - 1 downto 0 do
+      if TFunctionThread(FStuckWorkersThreads[i]).Finished then
+      begin
+        AThread := TFunctionThread(FStuckWorkersThreads[i]);
+        TFunctionThread.Finalize(AThread);
+        FStuckWorkersThreads.Delete(i);
+      end;
+  end;
+
   if gListFilesInThread and not (fspListOnMainThread in FileSource.GetProperties) then
     AThread := GetWorkersThread;
 
@@ -2747,11 +2833,23 @@ begin
         // (removable media, network share): correcting it here would make the
         // corrected path the saved one. Only cache the path availability for
         // the tab marker ('?' on the tab title).
+{$IFDEF MSWINDOWS}
+        // Total Commander style: check network paths in the background
+        FPathAvailable := NetFileSystemEntryExists(FHistory.CurrentPath, True);
+{$ELSE}
         FPathAvailable := mbFileSystemEntryExists(FHistory.CurrentPath);
+{$ENDIF}
       end
       else
       begin
         // Go to upper directory if current doesn't exist
+{$IFDEF MSWINDOWS}
+        // Total Commander style: do not access network paths here,
+        // an unreachable path is shown in the panel
+        if IsNetworkPath(FHistory.CurrentPath) then
+          sPath := FHistory.CurrentPath
+        else
+{$ENDIF}
         sPath := GetDeepestExistingPath(FHistory.CurrentPath);
         if Length(sPath) = 0 then sPath := mbGetCurrentDir;
         if not mbCompareFileNames(sPath, FHistory.CurrentPath) then
@@ -2778,6 +2876,66 @@ end;
 procedure TFileView.LoadingFileListTimer(Sender: TObject);
 begin
   SetLoadingFileListLongTime(True);
+  // Total Commander style: a slowly loading new directory shows only '..',
+  // so it is possible to go back while loading
+  ShowUpDirOnly;
+end;
+
+// Total Commander style: same condition as of the '..' entry in TFileListBuilder
+function TFileView.CanChangePathToParent: Boolean;
+begin
+  Result := (not FileSource.IsPathAtRoot(CurrentPath)) or
+            ((FileSourcesCount > 1) and not (fspNoneParent in FileSource.Properties))
+{$IFDEF MSWINDOWS}
+            or (TFileSystemFileSource.ClassNameIs(FileSource.ClassName) and (Pos('\\', CurrentPath) = 1))
+{$ENDIF}
+            ;
+end;
+
+// Total Commander style: replace the file list of the previous directory
+// with the '..' entry of the directory being loaded
+procedure TFileView.ShowUpDirOnly;
+var
+  AFiles: TFiles;
+  NewAllDisplayFiles, NewFilteredDisplayFiles: TDisplayFiles;
+begin
+  if (FileSourcesCount = 0) or not IsLoadingFileList or
+     (FileSource.Equals(FLastLoadedFileSource) and (FLastLoadedPath = CurrentPath)) then
+    Exit;
+
+  NewAllDisplayFiles := TDisplayFiles.Create(True);
+  NewFilteredDisplayFiles := TDisplayFiles.Create(False);
+  if CanChangePathToParent then
+  begin
+    AFiles := TFiles.Create(CurrentPath);
+    try
+      AFiles.Add(TFileListBuilder.CreateUpDirFile(FileSource, CurrentPath));
+      TFileListBuilder.MakeAllDisplayFileList(FileSource, AFiles, NewAllDisplayFiles, FSortings);
+      // The TFile objects have been transfered to NewAllDisplayFiles
+      AFiles.OwnsObjects := False;
+    finally
+      AFiles.Free;
+    end;
+    NewFilteredDisplayFiles.Add(NewAllDisplayFiles[0]);
+  end;
+
+  ClearRecentlyUpdatedFiles;
+  ClearPendingFilesChanges;
+  FFiles.Free;
+  FFiles := NewFilteredDisplayFiles;
+  FAllDisplayFiles.Free;
+  FAllDisplayFiles := NewAllDisplayFiles;
+  // It is not a loaded file list, do not reuse it
+  FLastLoadedFileSource := nil;
+  FLastLoadedPath := EmptyStr;
+
+  BeginUpdate;
+  try
+    Request([fvrqHashFileList]);
+    Notify([fvnFileSourceFileListLoaded, fvnDisplayFileListChanged]);
+  finally
+    EndUpdate;
+  end;
 end;
 
 procedure TFileView.LoadSelectionFromClipboard;
@@ -3028,7 +3186,26 @@ begin
       // in this way, for example, in SearchResults, after clicking "..",
       // we can navigation by cm_ViewHistoryPrev/cm_ViewHistoryNext.
       GoToPrevFileSourceHistory
+    end
+{$IFDEF MSWINDOWS}
+    // Total Commander style: from the root of a network share go to the list
+    // of shares of the host (also when the share is not reachable)
+    else if AllowChangingFileSource and
+            TFileSystemFileSource.ClassNameIs(FileSource.ClassName) and
+            (Pos('\\', CurrentPath) = 1) then
+    begin
+      PreviousSubDirectory := ExtractFileName(ExcludeTrailingPathDelimiter(CurrentPath));
+      sUpLevel := DCStrUtils.GetParentDir(CurrentPath);
+      if Length(sUpLevel) > 2 then
+      try
+        if AddFileSource(TWinNetFileSource.Create, sUpLevel) then
+          SetActiveFile(PreviousSubDirectory);
+      except
+        on E: EOSError do
+          DCDebug('Network file source: ', E.Message);
+      end;
     end;
+{$ENDIF}
   end
   else
   begin
@@ -3414,6 +3591,14 @@ begin
           Exit;
       end;
 
+{$IFDEF MSWINDOWS}
+      // Total Commander style: opening an unreachable network directory
+      // would freeze the UI, the watch is added when the path is reachable
+      FNetWatchPending := not NetPathAvailableNow(CurrentPath);
+      if FNetWatchPending then
+        Exit;
+{$ENDIF}
+
       WatchFilter := [];
       if watch_file_name_change in gWatchDirs then
         Include(WatchFilter, wfFileNameChange);
@@ -3430,6 +3615,7 @@ begin
   end
   else
   begin
+    FNetWatchPending := False; // Total Commander style
     FileSource.GetWatcher.removeWatch(FWatchPath, @WatcherEvent);
     FWatchPath := EmptyStr;
   end;
@@ -3442,13 +3628,30 @@ begin
 end;
 
 procedure TFileView.UpdatePathAvailability;
+var
+  OldPathAvailable: Boolean;
 begin
+  OldPathAvailable := FPathAvailable;
   if Assigned(FileSource) and TFileSystemFileSource.ClassNameIs(FileSource.ClassName) then
+{$IFDEF MSWINDOWS}
+    // Total Commander style: check network paths in the background,
+    // the view is updated when the check finishes
+    FPathAvailable := NetFileSystemEntryExists(CurrentPath, True)
+{$ELSE}
     FPathAvailable := mbFileSystemEntryExists(CurrentPath)
+{$ENDIF}
   else
     FPathAvailable := True;
   if Parent is TFileViewPage then
     TFileViewPage(Parent).UpdateTitle;
+  // Total Commander style: show or hide the message in the panel
+  if FPathAvailable <> OldPathAvailable then
+    RedrawFiles;
+{$IFDEF MSWINDOWS}
+  // Total Commander style: add the deferred watch of a network path
+  if FNetWatchPending and FPathAvailable then
+    EnableWatcher(True);
+{$ENDIF}
 end;
 
 procedure TFileView.ActivateEvent(Sender: TObject);

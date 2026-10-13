@@ -735,6 +735,13 @@ begin
   // Needed for rename on mouse
   tmRenameFile.Enabled := False;
   FRenameFileIndex := -1;
+  // Total Commander style: double click on a panel showing a message (slow
+  // loading, unreachable path) goes to the parent directory
+  if Length(PanelMessage) > 0 then
+  begin
+    ChangePathToParent(True);
+    Exit;
+  end;
   if IsLoadingFileList then Exit;
 {$IFDEF LCLGTK2}
   // Workaround for two doubleclicks being sent on GTK.
@@ -1949,7 +1956,8 @@ end;
 procedure TFileViewWithMainCtrl.WorkerStarting(const Worker: TFileViewWorker);
 begin
   inherited WorkerStarting(Worker);
-  MainControl.Cursor := crHourGlass;
+  // Total Commander style: no hourglass, PanelMessage shows the loading state
+  // MainControl.Cursor := crHourGlass;
   UpdateInfoPanel; // Update status line only
 end;
 

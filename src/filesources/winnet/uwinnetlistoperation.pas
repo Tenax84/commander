@@ -32,7 +32,8 @@ implementation
 uses
   LazUTF8, uFile, Windows, JwaWinNetWk, JwaLmCons, JwaLmShare, JwaLmApiBuf,
   StrUtils, DCStrUtils, uShowMsg, DCOSUtils, uOSUtils, uNetworkThread, uMyWindows,
-  ActiveX, ShlObj, ComObj, DCConvertEncoding, uShellFolder, uShlObjAdditional;
+  ActiveX, ShlObj, ComObj, DCConvertEncoding, uShellFolder, uShlObjAdditional,
+  uNetPathProbe;
 
 function TWinNetListOperation.Connect: Boolean;
 var
@@ -52,13 +53,19 @@ begin
     if dwResult = 0 then dwResult:= MaxInt;
     ServerPath:= CeUtf8ToUtf16(Copy(Path, 1, dwResult - 1));
   end;
+  // Total Commander style: do not wait for the timeout on an unreachable
+  // host, the error is shown in the file panel
+  if not NetHostReachable(Path) then
+    Exit(False);
   dwResult:= TNetworkThread.Connect(nil, PWideChar(ServerPath), RESOURCETYPE_ANY, AbortMethod);
   if dwResult <> NO_ERROR then
   begin
     if dwResult = ERROR_CANCELLED then RaiseAbortOperation;
-    msgError(Thread, mbWinNetErrorMessage(dwResult));
+    // Total Commander style: show the error in the file panel, not in a message box
+    NetSetPathError(Path, mbWinNetErrorMessage(dwResult));
     Exit(False);
   end;
+  NetSetPathError(Path, EmptyStr);
   Result:= True;
 end;
 
@@ -178,8 +185,9 @@ begin
   until (dwResult <> ERROR_MORE_DATA);
 
   // Show error if failed
+  // Total Commander style: show the error in the file panel, not in a message box
   if (dwResult <> ERROR_SUCCESS) then
-    msgError(Thread, mbSysErrorMessage(dwResult));
+    NetSetPathError(Path, mbSysErrorMessage(dwResult));
 end;
 
 procedure TWinNetListOperation.ShellEnum;
