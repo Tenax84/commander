@@ -8,8 +8,9 @@ A repó a `D:\Tenax84\commander` mappa. Benne olyan helyi mappák is vannak, ame
 
 | Mappa | Tartalom |
 |---|---|
-| `run\` | Hordozható futtatási könyvtár: a hivatalos v1.2.9 bináris csomag másolata, benne a saját buildünk (`doublecmd.exe`) és a `settings\` mappa a hordozható konfigurációval. Itt teszteljük a programot. |
+| `run\` | Hordozható futtatási könyvtár: a hivatalos v1.2.9 bináris csomag másolata, benne a saját buildünk (`Commander.exe`) és a `settings\` mappa a hordozható konfigurációval. Itt teszteljük a programot. |
 | `screenshots\` | A képernyőképek és villanásmérések kimenete (TC kontra DC). |
+| `dist\` | A `devtools\make-release.ps1` kimenete: `Commander\` (a kiadás mappája) és `Commander-<verzió>-win64.zip`. |
 
 ## Fordítás
 
@@ -20,20 +21,21 @@ devtools\build-dc.ps1 -Clean              # főprogram, DarkWin build mode, kb. 
 devtools\build-dc.ps1 -Mode all -Clean    # komponensek + pluginek + főprogram (első fordításnál kell), kb. 1 perc
 ```
 
-`-Mode` lehet `components`, `plugins`, `doublecmd` vagy `all`. Új gépen: `devtools\fetch-deps.bat`, utána `devtools\build-dc.ps1 -Mode all -Clean`, és a `run\doublecmd.exe` indítható.
+`-Mode` lehet `components`, `plugins`, `doublecmd` vagy `all`. Új gépen: `devtools\fetch-deps.bat`, utána `devtools\build-dc.ps1 -Mode all -Clean`, és a `run\Commander.exe` indítható.
 
-- `build_and_run.bat`: kapcsolók nélkül előbb a `devtools\needs-build.ps1`-gyel ellenőrzi (kb. 0,5 mp alatt, a fájlok módosítási ideje alapján), hogy a `src\`, `components\`, `plugins\`, `language\` stb. mappákban módosult-e valami a `run\doublecmd.exe` óta. Ha nem, nem fordít, csak elindítja a programot, ha még nem fut. Kapcsolóval (pl. `-Mode all`) mindig fordít. Fordításkor bezárja a futó `run\doublecmd.exe`-t, lefuttatja a `devtools\build-dc.ps1 -Clean`-t (a további kapcsolókat, pl. `-Mode all`, továbbadja), majd elindítja a `run\doublecmd.exe`-t. Hiba esetén megáll, és nem indítja el a programot.
+- `build_and_run.bat`: kapcsolók nélkül előbb a `devtools\needs-build.ps1`-gyel ellenőrzi (kb. 0,5 mp alatt, a fájlok módosítási ideje alapján), hogy a `src\`, `components\`, `plugins\`, `language\` stb. mappákban módosult-e valami a `run\Commander.exe` óta. Ha nem, nem fordít, csak elindítja a programot, ha még nem fut. Kapcsolóval (pl. `-Mode all`) mindig fordít. Fordításkor bezárja a futó `run\Commander.exe`-t, lefuttatja a `devtools\build-dc.ps1 -Clean`-t (a további kapcsolókat, pl. `-Mode all`, továbbadja), majd elindítja a `run\Commander.exe`-t. Hiba esetén megáll, és nem indítja el a programot.
 - `devtools\fetch-deps.bat`: a `run\` mappába letölti a repóból nem fordítható külső fájlokat (7z/unrar/lua/pcre2/libssh2 DLL-ek, 7z.sfx, winpty) a hivatalos v1.2.9 zip-ből (SHA256-tal ellenőrizve), és létrehozza a hordozható módot jelző `settings\doublecmd.inf`-et. Csak a hiányzókat tölti le.
 - **Mindig `-Clean` kapcsolóval fordíts.** Részleges újrafordításnál az FPC 3.2.2 belső hibával (internal error) leállhat.
-- A szkript sikeres fordítás után összeállítja a `run\` mappát az `install\windows\install.bat` mintájára: exe, pluginek, `language\`, `pixmaps\`, `default\`, `highlighters\`, `doc\` stb. A `settings\` mappát és a külső DLL-eket nem bántja. Ha a `run\doublecmd.exe` éppen fut, a másolást kihagyja; ezt a `-NoDeploy` kapcsolóval is el lehet kerülni.
-- Fordítás közben a régi exe `doublecmd.exe.old` néven megmarad. Ez, a `units\` és a `components\*\lib\` mappa a .gitignore-ban van.
+- A szkript sikeres fordítás után összeállítja a `run\` mappát az `install\windows\install.bat` mintájára: exe, pluginek, `language\`, `pixmaps\`, `default\`, `highlighters\`, `doc\` stb. A `settings\` mappát és a külső DLL-eket nem bántja. Ha a `run\Commander.exe` éppen fut, a másolást kihagyja; ezt a `-NoDeploy` kapcsolóval is el lehet kerülni.
+- Fordítás közben a régi exe `Commander.exe.old` néven megmarad. Ez, a `units\`, a `dist\` és a `components\*\lib\` mappa a .gitignore-ban van.
+- `devtools\make-release.ps1 [-Publish]`: kiadás készítése. A verziót a `src\platform\win\uselfupdate.pas` `CommanderVersion` konstansából veszi; a `dist\Commander` mappába fordít (`-Mode all -Clean`), letölti a külső DLL-eket, elkészíti a `dist\Commander-<verzió>-win64.zip`-et (benne egy `Commander\` mappa), `-Publish` esetén pedig létrehozza a `v<verzió>` GitHub-kiadást. Új kiadásnál előbb a `CommanderVersion`-t kell megemelni és commitolni.
 
 ## Tesztelés
 
 Automatizált tesztek nincsenek. Úgy ellenőrzünk, hogy a programot a Total Commanderrel egymás mellett futtatjuk, és összehasonlítjuk őket:
 
-- `devtools\shot.ps1 -Suffix _vN`: mindkét ablakot (`TOTALCMD64`, `doublecmd`) azonos méretre (1400×900) állítja, és a `screenshots\` mappába menti őket.
-- `devtools\flash.ps1 -Name doublecmd [-Mode 0|1|2] [-All]`: minimalizálja, majd visszaállítja az ablakot, és közben 20 ms-onként képernyőképet készít a fekete pixelek arányáról. Ezzel mérjük a visszaállításkori villanást.
+- `devtools\shot.ps1 -Suffix _vN`: mindkét ablakot (`TOTALCMD64`, `Commander`) azonos méretre (1400×900) állítja, és a `screenshots\` mappába menti őket.
+- `devtools\flash.ps1 -Name Commander [-Mode 0|1|2] [-All]`: minimalizálja, majd visszaállítja az ablakot, és közben 20 ms-onként képernyőképet készít a fekete pixelek arányáról. Ezzel mérjük a visszaállításkori villanást.
 
 A kezdőértékekben végzett módosítások csak tiszta konfigurációval látszanak. Ha a `run\settings\` mappában már van mentett `doublecmd.xml`, az felülírja őket, ezért teszteléskor töröld vagy nevezd át.
 
@@ -49,10 +51,11 @@ A TC-szerű megjelenés nagyrészt **kezdőérték-változtatás**, nem új funk
 - `src/fmain.pas`/`.lfm`: `[kötetcímke]` a szabad hely előtt, balra igazítva; F-gombok `F3 Nézőke` formában, F9 gomb nélkül.
 - `src/ulng.pas`, `language/doublecmd.hu.po`: TC-s magyar szóhasználat (Fájl, Kijelölés, Nézet, `<DIR>` stb.).
 - `pixmaps/tcstyle/` (új ikontéma): TC-szerű ikonok a felső eszköztár gombjaihoz (Codexszel generálva), minden más ikont a `dctheme`-től örököl (`Inherits=dctheme`). Az `uglobs.pas`-ban ez az alapértelmezett ikontéma.
-- Programnév: a felhasználónak látható helyeken „Commander” a „Double Commander” helyett (ablakcím, `Application.Title`, a `doublecmd.lpi` verzióinformációja, Névjegy, üzenetablakok, `ulng.pas`, `doublecmd.hu.po`). Az exe, a konfigurációs fájlok és a belső azonosítók neve (`doublecmd*`) nem változott, ahogy a DC weboldalára mutató menüpont és a macOS-es szöveg sem. A többi nyelvi `.po` fájlban még „Double Commander” szerepel.
+- Programnév: a felhasználónak látható helyeken „Commander” a „Double Commander” helyett (ablakcím, `Application.Title`, a `doublecmd.lpi` verzióinformációja, Névjegy, üzenetablakok, `ulng.pas`, `doublecmd.hu.po`). Az exe neve `Commander.exe` (a `doublecmd.lpi` minden build módjában `..\Commander` a cél; a `run\Commander.visualelementsmanifest.xml` az `install\windows\doublecmd.visualelementsmanifest.xml` másolata). A konfigurációs fájlok, a projektfájlok és a belső azonosítók neve (`doublecmd*`) nem változott, ahogy a DC weboldalára mutató menüpont és a macOS-es szöveg sem. A többi nyelvi `.po` fájlban még „Double Commander” szerepel.
 - `src/doublecmd.ico`: TC-szerű kék hajlékonylemez (Codexszel generálva, 16–256 px). Minden méretet BMP-ként kell tárolni, mert a PNG-tömörítésű bejegyzéseket az LCL nem tudja beolvasni („Bitmap with unknown compression”). A `doublecmd.res` fordításkor ebből készül.
 - `src/platform/win/urestoreflicker.pas` (új): kiküszöböli a minimalizálásból visszaállításkor jelentkező fekete villanást. A főablak WndProc-ját subclassolja; visszaállításkor DWM-cloakkal elrejti az ablakot, szinkron kirajzol mindent, és csak utána jeleníti meg (legfeljebb 300 ms múlva). Az `fmain.pas` telepíti, csak Windowson.
 - `src/platform/win/unetpathprobe.pas` (új): a hálózati útvonalakat (UNC, leképezett meghajtó) a fő szál nem éri el, így elérhetetlen gépnél sem fagy be a felület. A panel azonnal átvált, a lista a háttérben töltődik be. Előtte egy kb. 2 mp-es TCP-próba fut a gép 445-ös és 139-es portjára, az elérhetetlen megosztásokat/gépeket pedig a program egy ideig megjegyzi. Betöltéskor a panel fehér marad, és a közepén a „Fájllista betöltése...” felirat látszik (homokóra nélkül). A hiba üzenetablak helyett a panel közepén jelenik meg (`TFileView.PanelMessage`, `TFileViewBaseGrid.Paint`). A fájlrendszer-figyelő csak akkor indul el hálózati útvonalon, ha az elérhető. Ha a betöltés 0,5 mp-nél tovább tart, a panelen csak a `..` sor marad (`TFileView.ShowUpDirOnly`); hiba esetén is ott van (`TFileListBuilder`). Betöltés közben is vissza lehet lépni (Backspace, Enter a `..`-on, dupla kattintás a panelen, Esc az előző mappára): ez megszakítja a háttérmunkát (`NetCancelThread`: a TCP-próba leáll, a folyamatban lévő fájlrendszer-hívást `CancelSynchronousIo` szakítja meg), a panel pedig új háttérszálat kap, ha az előző betöltés beragadt (`TFileView.MakeFileSourceFileList`). A megosztás gyökeréről (`\\gép\megosztás\`) a `..` a gép megosztáslistájára (`\\gép\`, hálózati fájlforrás) lép, akkor is, ha a megosztás nem érhető el (`TFileView.ChangePathToParent`).
+- `src/platform/win/uselfupdate.pas` (új): önfrissítés a GitHub Releases alapján. Indításkor (`doublecmd.lpr`, a `frmMain.Show` után; a unit a uses-lista végén van, mert a függőségei az `Interfaces` előtt nem inicializálódhatnak) egy háttérszál WinINettel lekéri a `Tenax84/commander` legutóbbi kiadását (`api.github.com/.../releases/latest`). Ha a tag (`v1.2.3`) újabb a `CommanderVersion`-nél, rákérdez (Igen / Nem / Kihagyás; a kihagyott verzió a `settings\update-skip.txt`-be kerül). A `.zip` assetet letölti, a `%TEMP%\Commander-update` mappába csomagolja ki, és a program mappájába másolja. A `settings\` mappát kihagyja; a használatban lévő fájlokat `*.updold` névre nevezi át, ezeket az `update-old.txt` alapján a következő induláskor törli. Újraindításkor egy rejtett PowerShell megvárja a régi folyamat kilépését, és elindítja az új exe-t. A `COMMANDER_UPDATE_URL` környezeti változóval a kiadás adatai helyi szerverről is olvashatók (teszteléshez; a gombok `SendMessage(WM_LBUTTONDOWN/UP)`-pal nyomhatók meg, a `BM_CLICK` nem működik). A Névjegyben a DC-verzió mellett `(Commander x.y.z)` látszik. **A repónak publikusnak kell lennie**, különben az API 404-et ad, és a frissítő csendben nem csinál semmit.
 
 Módosításnál vedd figyelembe:
 - Az upstream kódot minimálisan módosítsd, és a TC-specifikus részeket jelöld egy `// Total Commander style` kommenttel. Így az upstream frissítésekor könnyebb összefésülni.
@@ -62,7 +65,7 @@ Módosításnál vedd figyelembe:
 
 ## Git
 
-- `origin`: a privát fork (`Tenax84/commander`). `upstream`: https://github.com/doublecmd/doublecmd.
+- `origin`: a fork (`Tenax84/commander`). `upstream`: https://github.com/doublecmd/doublecmd.
 - Upstream frissítése: `git fetch upstream` után `git merge upstream/master`.
 
 ## Nyitott feladatok (TC-hez képest)

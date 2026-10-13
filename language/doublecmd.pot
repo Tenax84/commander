@@ -12075,6 +12075,21 @@ msgstr ""
 msgid "Loading file list..."
 msgstr ""
 
+#: ulng.rsmsgupdateavailable
+#, object-pascal-format
+msgid "A new version of Commander is available: %s (current version: %s).\n\nDo you want to download and install it now?\n(Skip: this version will not be offered again.)"
+msgstr ""
+
+#: ulng.rsmsgupdatefailed
+#, object-pascal-format
+msgid "The update could not be installed:\n%s"
+msgstr ""
+
+#: ulng.rsmsgupdateinstalled
+#, object-pascal-format
+msgid "Commander %s has been installed.\nDo you want to restart the program now?"
+msgstr ""
+
 #: ulng.rsmsgpathnotavailable
 #, object-pascal-format
 msgid "The path is not available:\n%s"

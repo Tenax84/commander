@@ -75,7 +75,8 @@ implementation
 {$R *.lfm}
 
 uses
-  Clipbrd, dmHelpManager, dmCommonData, uDCVersion, uClipboard, uOSForms;
+  Clipbrd, dmHelpManager, dmCommonData, uDCVersion, uClipboard, uOSForms
+  {$IFDEF MSWINDOWS}, uSelfUpdate{$ENDIF};
 
 const
   cIndention = LineEnding + #32#32;
@@ -170,6 +171,10 @@ begin
   memInfo.CaretPos           := Classes.Point(0, 0);
 
   lblVersion.Caption         := lblVersion.Caption + #32 + dcVersion;
+  {$IFDEF MSWINDOWS}
+  // Total Commander style: version of the fork
+  lblVersion.Caption         := lblVersion.Caption + ' (Commander ' + CommanderVersion + ')';
+  {$ENDIF}
   lblRevision.Caption        := lblRevision.Caption + #32 + dcRevision;
   lblCommit.Caption          := lblCommit.Caption + #32 + dcCommit;
   lblBuild.Caption           := lblBuild.Caption + #32 + dcBuildDate;

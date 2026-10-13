@@ -37,16 +37,16 @@ if ($Mode -in 'plugins','all') {
   foreach ($p in $plugins.Values) { Laz "plugins\$p" }
 }
 if ($Mode -in 'doublecmd','all') {
-  if (Test-Path doublecmd.exe) { Remove-Item doublecmd.exe.old -ErrorAction SilentlyContinue; Rename-Item doublecmd.exe doublecmd.exe.old }
+  if (Test-Path Commander.exe) { Remove-Item Commander.exe.old -ErrorAction SilentlyContinue; Rename-Item Commander.exe Commander.exe.old }
   Laz 'src\doublecmd.lpi' "--bm=$BuildMode"
 }
 "BUILD OK"
 if ($NoDeploy) { return }
 
 # Assemble the portable run directory. Existing files (settings, external DLLs) are kept.
-if (Get-Process doublecmd -ErrorAction SilentlyContinue |
+if (Get-Process Commander -ErrorAction SilentlyContinue |
     ? Path -like "$([IO.Path]::GetFullPath($RunDir))*") {
-  Write-Warning "A run\doublecmd.exe fut, nem másolom be. Zárd be, és futtasd újra (-Mode none)."
+  Write-Warning "A run\Commander.exe fut, nem másolom be. Zárd be, és futtasd újra (-Mode none)."
   return
 }
 New-Item -ItemType Directory -Force $RunDir, "$RunDir\doc" | Out-Null
@@ -56,8 +56,10 @@ foreach ($d in 'default','language','pixmaps','highlighters') {
   if ($LASTEXITCODE -ge 8) { throw "robocopy failed: $d" }
 }
 Copy-Item doc\*.txt "$RunDir\doc" -Force
-Copy-Item doublecmd.help, pinyin.tbl, install\windows\doublecmd.visualelementsmanifest.xml $RunDir -Force
-if (Test-Path doublecmd.exe) { Copy-Item doublecmd.exe $RunDir -Force }
+Copy-Item doublecmd.help, pinyin.tbl $RunDir -Force
+# Windows looks for <exe name>.VisualElementsManifest.xml
+Copy-Item install\windows\doublecmd.visualelementsmanifest.xml "$RunDir\Commander.visualelementsmanifest.xml" -Force
+if (Test-Path Commander.exe) { Copy-Item Commander.exe $RunDir -Force }
 foreach ($p in $plugins.Keys) {
   $dst = Join-Path $RunDir "plugins\$(Split-Path $p)"
   New-Item -ItemType Directory -Force $dst | Out-Null

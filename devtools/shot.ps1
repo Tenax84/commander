@@ -1,4 +1,4 @@
-param([string]$OutDir=(Join-Path $PSScriptRoot '..\screenshots'),[int]$W=1400,[int]$H=900,[string[]]$Names=@('TOTALCMD64','doublecmd'),[string]$Suffix='')
+param([string]$OutDir=(Join-Path $PSScriptRoot '..\screenshots'),[int]$W=1400,[int]$H=900,[string[]]$Names=@('TOTALCMD64','Commander'),[string]$Suffix='')
 Add-Type -AssemblyName System.Drawing
 Add-Type @"
 using System; using System.Runtime.InteropServices;

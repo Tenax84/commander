@@ -1,8 +1,8 @@
-﻿# Exit code 0 if a rebuild is needed, 1 if run\doublecmd.exe is newer than every source file.
+﻿# Exit code 0 if a rebuild is needed, 1 if run\Commander.exe is newer than every source file.
 # Compares modification times only (no hashing), so it takes well under a second.
-param([string]$Exe = (Join-Path $PSScriptRoot '..\run\doublecmd.exe'))
+param([string]$Exe = (Join-Path $PSScriptRoot '..\run\Commander.exe'))
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-if (-not (Test-Path $Exe)) { 'Nincs run\doublecmd.exe, fordítás kell.'; exit 0 }
+if (-not (Test-Path $Exe)) { 'Nincs run\Commander.exe, fordítás kell.'; exit 0 }
 $built = [IO.File]::GetLastWriteTimeUtc((Resolve-Path $Exe))
 # Build outputs living inside the source tree
 $skipDir = '[\\/](lib|units|backup)[\\/]'

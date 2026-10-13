@@ -99,6 +99,7 @@ uses
   uLng
   {$IFDEF MSWINDOWS}
   , uMyWindows
+  , uSelfUpdate
   {$ENDIF}
   {$IFDEF UNIX}
   , uMyUnix
@@ -246,6 +247,10 @@ begin
 
       frmMain.Show;
       Application.ProcessMessages;
+      {$IFDEF MSWINDOWS}
+      // Total Commander style: self-update from GitHub releases
+      uSelfUpdate.StartUpdateCheck;
+      {$ENDIF}
       Application.Run;
 
       if not UniqueInstance.isAnotherDCRunningWhileIamRunning then

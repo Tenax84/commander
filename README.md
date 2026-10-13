@@ -1,29 +1,71 @@
-**Double Commander** is a [free](https://www.gnu.org/philosophy/free-sw.html) cross-platform open source file manager with two panels side by side (or one above the other). It is inspired by Total Commander and features some innovative new ideas. 
+# Commander
 
-Double Commander can be run on several platforms and operating systems.
-It supports 32-bit and 64-bit processors. See [Supported platforms](https://github.com/doublecmd/doublecmd/wiki/Supported-platforms)
-for a complete list.
+A **Commander** a [Double Commander](https://github.com/doublecmd/doublecmd) (DC) Windowsra szánt forkja. Kinézetben és kezelésben a Total Commanderhez igazodik: TC-s színek, ikonok, eszköztárak, formátumok és billentyűkiosztás, a DC összes funkciójával együtt.
 
-See Double Commander in action in the [Screenshot Gallery](https://doublecmd.sourceforge.io/gallery).
+> A projekt nem áll kapcsolatban a Total Commanderrel és a Ghisler Software GmbH-val, és nem is támogatják. A „Total Commander” név a jogtulajdonos védjegye; itt csak arra utal, hogy melyik programhoz hasonlít a kinézet. A program a Double Commanderen alapul, és annak licence (GNU GPL 2) alatt érhető el.
 
-## Where to start
+## Letöltés és telepítés
 
-### Download
+1. A [Releases](https://github.com/Tenax84/commander/releases/latest) oldalról töltsd le a `Commander-<verzió>-win64.zip` fájlt.
+2. Csomagold ki egy tetszőleges mappába, például `C:\Commander` vagy `D:\Programok\Commander`.
+3. Indítsd el a `Commander.exe`-t.
 
-Go to the [Double Commander download page](https://sourceforge.net/p/doublecmd/wiki/Download) to download the latest release.
+A program **hordozható**: a beállításokat a saját `settings\` mappájában tárolja, telepítőre és rendszergazdai jogra nincs szükség. 64 bites Windows kell hozzá.
 
-You can check the latest version on the [Versions](https://github.com/doublecmd/doublecmd/wiki/Versions) page.
+A konfigurációs fájlok neve ugyanaz, mint a DC-ben (`doublecmd.xml`, `shortcuts.scf` stb.), így egy meglévő DC-beállítás átmásolható a `settings\` mappába.
 
-See if Double Commander is supported for your platform on the [Supported
-platforms](https://github.com/doublecmd/doublecmd/wiki/Supported-platforms) page.
+## Automatikus frissítés
 
-### Develop
+Indításkor a program a háttérben megnézi, hogy van-e újabb kiadás a GitHub Releases oldalon. Ha van, megkérdezi, hogy telepítse-e:
 
-For more information on the development of Double Commander,
-see the [Development](https://github.com/doublecmd/doublecmd/wiki/Development) page.
+- **Igen:** letölti és kicsomagolja az új verziót a program mappájába, majd felajánlja az újraindítást. A futó exe-t és a betöltött DLL-eket nem lehet felülírni, ezért ezeket a frissítő átnevezi (`*.updold`), és a következő induláskor törli.
+- **Nem:** a következő indításkor újra rákérdez.
+- **Kihagyás:** erre a verzióra többet nem figyelmeztet.
 
-### Discuss
-  
-Go to our [forum](https://doublecmd.h1n.ru) for discussions. There are English and Russian sections.
+A frissítő a `settings\` mappához nem nyúl. Ha a program mappája írásvédett (például a `C:\Program Files` alatt van), a frissítés hibaüzenettel leáll.
 
-If you want to stay up-to-date with the project, you can check out the available [news feeds](https://github.com/doublecmd/doublecmd/wiki/News-feeds).
+## Változások a Double Commanderhez képest
+
+### Megjelenés
+
+- **Programnév:** a felületen „Commander” szerepel, az exe neve `Commander.exe`. A program ikonja egy TC-szerű kék hajlékonylemez.
+- **Világos téma** minden esetben, indítóképernyő nélkül.
+- **TC-s ikontéma** (`tcstyle`) a felső eszköztárhoz; az összes többi ikont a DC alaptémájától örökli. A felső eszköztáron a TC alapértelmezett gombjai vannak, a középső eszköztár be van kapcsolva.
+- **Eszköztárak és keretek:** fehér hátterű eszköztárak elválasztó vonalakkal, a menüsor jobb szélén a „Súgó”, a „Lapok” és a „Kedvencek” menü helyett „Start” menü. A fülsor csak akkor látszik, ha egynél több fül van nyitva; amíg rejtve van, a panel körül nincs keret.
+- **Meghajtósor és útvonal:** a meghajtóválasztó TC-szerű lenyíló mező, mellette a szabad hely, előtte a `[kötetcímke]` balra igazítva. A meghajtóbetű kisbetűs (`c:\`), az útvonal után `*.*` maszk áll, az útvonal-fejléc TC-s színeket kap.
+- **Fájllista:** 9 pontos normál betű, 16 px-es ikonok, világoskék kurzor fekete betűvel és kurzorkerettel. A Név oszlop kitölti a panelt, a mappák elöl állnak, és a rejtett és rendszerfájlok is látszanak.
+- **Formátumok:** a méretek bájtban vagy k-ban jelennek meg, a dátum `yyyy.mm.dd hh:nn` formátumú, az attribútumok `rahs` formában (`-a--`) látszanak, a mappák mérete helyén `<DIR>` áll.
+- **Funkcióbillentyű-sor:** `F3 Nézőke` formájú feliratok, egyforma széles gombok, F9 gomb nélkül.
+- **Magyar fordítás:** TC-s szóhasználat (Fájl, Kijelölés, Nézet, Nézőke stb.).
+
+### Kezelés
+
+- **Gépelés:** a sima gépelés a parancssorba kerül, az Alt+betű gyorskeresést indít, mint a TC-ben. A Ctrl+E az előző parancsot hívja elő.
+- **Alt+F4:** kilépés a programból.
+- **Fájlműveleti hibák:** alapértelmezés szerint a program átugorja a hibás fájlt, és a művelet folytatódik.
+- **Mappák rögzítése a meghajtósoron:** ha egy mappát a fájlpanelről vagy más programból a meghajtósorra húzol, a meghajtók után gombot kap (a két panel meghajtósora közös). A gombok húzással áthelyezhetők; ha egyet lehúzol a meghajtósorról, eltűnik.
+- **Hálózati útvonalak:** egy elérhetetlen gép vagy megosztás nem fagyasztja le a felületet. A lista a háttérben töltődik be, előtte egy kb. 2 másodperces próba ellenőrzi, hogy a gép elérhető-e. A hiba üzenetablak helyett a panel közepén jelenik meg, és betöltés közben is vissza lehet lépni (Backspace, `..`, Esc). A megosztás gyökeréről a `..` a gép megosztáslistájára lép.
+- **Nincs fekete villanás**, amikor a program minimalizált állapotból visszaáll.
+
+## Fordítás
+
+Szükséges hozzá: [Lazarus](https://www.lazarus-ide.org/) 4.8 (FPC 3.2.2, x86_64-win64) a `C:\lazarus` mappában.
+
+```powershell
+devtools\fetch-deps.bat                     # külső DLL-ek (7z, unrar, lua stb.) a run\ mappába
+devtools\build-dc.ps1 -Mode all -Clean      # komponensek, pluginek és a főprogram; a run\ mappa összeállítása
+run\Commander.exe
+```
+
+Mindig a `-Clean` kapcsolóval fordíts, mert részleges újrafordításnál az FPC 3.2.2 belső hibával leállhat.
+
+### Kiadás
+
+1. Írd át a verziószámot (`CommanderVersion`) a `src\platform\win\uselfupdate.pas` fájlban, és commitold.
+2. `devtools\make-release.ps1 -Publish`: lefordítja a programot a `dist\Commander` mappába, elkészíti a `dist\Commander-<verzió>-win64.zip` fájlt, és létrehozza a `v<verzió>` GitHub-kiadást. A programba épített frissítő ezt a zipet tölti le.
+
+A frissítő helyi szerverrel is tesztelhető: a `COMMANDER_UPDATE_URL` környezeti változóban megadott címről olvassa a kiadás adatait (a GitHub API `releases/latest` válaszának formátumában).
+
+## Licenc
+
+GNU General Public License 2 (lásd [LICENSE.md](LICENSE.md)). A Double Commander szerzői és közreműködői a program Névjegy ablakában vannak felsorolva.

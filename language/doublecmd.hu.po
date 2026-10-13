@@ -12138,6 +12138,21 @@ msgstr "A kulcs átalakítása %f másodpercet vett igénybe."
 msgid "Loading file list..."
 msgstr "Fájllista betöltése..."
 
+#: ulng.rsmsgupdateavailable
+#, object-pascal-format
+msgid "A new version of Commander is available: %s (current version: %s).\n\nDo you want to download and install it now?\n(Skip: this version will not be offered again.)"
+msgstr "Elérhető a Commander új verziója: %s (a jelenlegi: %s).\n\nLetöltsem és telepítsem most?\n(Kihagyás: erre a verzióra többet nem figyelmeztet.)"
+
+#: ulng.rsmsgupdatefailed
+#, object-pascal-format
+msgid "The update could not be installed:\n%s"
+msgstr "A frissítést nem sikerült telepíteni:\n%s"
+
+#: ulng.rsmsgupdateinstalled
+#, object-pascal-format
+msgid "Commander %s has been installed.\nDo you want to restart the program now?"
+msgstr "A Commander %s verziója telepítve.\nÚjraindítod most a programot?"
+
 #: ulng.rsmsgpathnotavailable
 #, object-pascal-format
 msgid "The path is not available:\n%s"

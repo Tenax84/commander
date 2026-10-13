@@ -205,6 +205,10 @@ resourcestring
   // Total Commander style: shown in the middle of the file panel
   rsMsgPathNotAvailable = 'The path is not available:'#10'%s';
   rsMsgNoFiles = 'No files';
+  // Total Commander style: self-update from GitHub releases
+  rsMsgUpdateAvailable = 'A new version of Commander is available: %s (current version: %s).'#10#10'Do you want to download and install it now?'#10'(Skip: this version will not be offered again.)';
+  rsMsgUpdateInstalled = 'Commander %s has been installed.'#10'Do you want to restart the program now?';
+  rsMsgUpdateFailed = 'The update could not be installed:'#10'%s';
   rsMsgErrSetAttribute = 'Can not set attributes for "%s"';
   rsMsgErrSetDateTime = 'Can not set date/time for "%s"';
   rsMsgErrSetOwnership = 'Can not set owner/group for "%s"';
