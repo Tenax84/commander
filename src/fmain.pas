@@ -46,7 +46,8 @@ uses
   uFileView, uFileSource, uFileSourceManager, uFileViewNotebook, uFile, LCLVersion, KASToolPanel,
   uOperationsManager, uFileSourceOperation, uDrivesList, DCClassesUtf8,
   DCXmlConfig, uDrive, uDriveWatcher, uDCVersion, uMainCommands, uFormCommands,
-  uOperationsPanel, KASToolItems, uKASToolItemsExtended, uCmdLineParams, uOSForms
+  uOperationsPanel, KASToolItems, uKASToolItemsExtended, uCmdLineParams, uOSForms,
+  uDragDropEx
   {$IF DEFINED(LCLQT)}
   , Qt4, QtWidgets
   {$ELSEIF DEFINED(LCLQT5)}
@@ -63,6 +64,14 @@ uses
   , Types, LMessages;
 
 type
+
+  TKASToolBarArray = array of TKASToolBar;
+
+  // Total Commander style: folders pinned to a drive bar.
+  TKASFolderItem = class(TKASNormalItem)
+    FolderPath: String;
+    function Clone: TKASToolItem; override;
+  end;
 
   TForEachViewFunction = procedure (AFileView: TFileView; UserData: Pointer) of object;
 
@@ -603,6 +612,17 @@ type
     procedure ConsoleSplitterCanResize(Sender: TObject; var NewSize: Integer;
       var {%H-}Accept: Boolean);
     procedure dskLeftRightToolButtonDragDrop(Sender, {%H-}Source: TObject; {%H-}X, {%H-}Y: Integer);
+    procedure DriveBarDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
+    procedure DriveBarDragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure DriveBarButtonDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean; NumberOfButton: Integer);
+    procedure DriveBarButtonEndDrag(Sender, Target: TObject; X, Y: Integer);
+    function DriveBarExternalDrag(var DropEffect: TDropEffect;
+      ScreenPoint: TPoint): Boolean;
+    function DriveBarExternalDrop(const FileNamesList: TStringList;
+      DropEffect: TDropEffect; ScreenPoint: TPoint): Boolean;
+    function DriveBarExternalLeave: Boolean;
     procedure dskToolButtonMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure lblAllProgressPctClick(Sender: TObject);
     procedure MainToolBarToolButtonDragDrop(Sender, Source: TObject; X, Y: Integer);
@@ -724,6 +744,9 @@ type
     FMainSplitterPos: Double;
     PanelSelected: TFilePanelSelect;
     DrivesList : TDrivesList;
+    FDriveFolders: TStringList;
+    FDriveFoldersUpdatePending: Boolean;
+    FLeftDriveDropTarget, FRightDriveDropTarget: uDragDropEx.TDragDropTarget;
     MainSplitterHintWnd: THintWindow;
     HiddenToTray: Boolean;
     HidingTrayIcon: Boolean; // @true if the icon is in the process of hiding
@@ -772,6 +795,11 @@ type
     procedure UpdateHotDirIcons;
     procedure TypeInCommandLine(Str: String);
     procedure AddSpecialButtons(dskPanel: TKASToolBar);
+    procedure AddDriveBarFolderButtons(dskPanel: TKASToolBar);
+    procedure UpdateDriveBarFolders(Data: PtrInt);
+    procedure DriveBarFoldersChanged;
+    function IsOverDriveBar(const ScreenPoint: TPoint): Boolean;
+    function DraggedFolderPath(Source: TObject): String;
     procedure HideToTray;
     procedure RestoreFromTray;
     procedure ShowTrayIcon(bShow: Boolean);
@@ -967,7 +995,7 @@ uses
   Themes, uFileProcs, uShellContextMenu, fTreeViewMenu,
   Math, LCLIntf, Dialogs, uGlobs, uLng, uMasks, fCopyMoveDlg, uQuickViewPanel,
   uShowMsg, uDCUtils, uLog, uGlobsPaths, LCLProc, uOSUtils, uPixMapManager, LazUTF8,
-  LazLogger, uDragDropEx, uKeyboard,
+  LazLogger, uKeyboard,
   uLocalFileSource, uFileSystemFileSource, uSearchResultFileSource, uStashFileSource,
   uVfsModule, fViewOperations, uMultiListFileSource,
   uFileSourceOperationTypes, uFileSourceCopyOperation, uFileSourceMoveOperation,
@@ -991,6 +1019,13 @@ const
   DCToolItemClipboardHeader = 'DOUBLECMD#TOOLBAR#XMLDATA';
   TCToolbarClipboardHeader  = 'TOTALCMD#BAR#DATA';
   DCToolbarClipboardHeader  = 'DOUBLECMD#BAR#DATA';
+
+function TKASFolderItem.Clone: TKASToolItem;
+begin
+  Result := TKASFolderItem.Create;
+  Result.Assign(Self);
+  TKASFolderItem(Result).FolderPath := FolderPath;
+end;
 
 {$IF DEFINED(LCLGTK2) or DEFINED(LCLQT) or DEFINED(LCLQT5) or DEFINED(LCLQT6)}
 var
@@ -1141,6 +1176,10 @@ var
   I: Integer;
 begin
   Application.OnException := @AppException;
+  // Total Commander style: folders pinned to the drive bars (shared by both panels).
+  FDriveFolders := TStringList.Create;
+  FDriveFolders.CommaText := gConfig.GetValue(gConfig.RootNode,
+    'DriveBarFolders/Folders', '');
   Application.OnActivate := @AppActivate;
   Application.OnDeActivate := @AppDeActivate;
   Application.OnShowHint := @AppShowHint;
@@ -1227,6 +1266,16 @@ begin
     UniqueInstance.OnMessage:= @OnUniqueInstanceMessage;
 
   MainFormCreate(Self);
+
+  // Total Commander style: accept folders dragged from the file manager too.
+  FLeftDriveDropTarget := CreateDragDropTarget(dskLeft);
+  FRightDriveDropTarget := CreateDragDropTarget(dskRight);
+  if Assigned(FLeftDriveDropTarget) then
+    FLeftDriveDropTarget.RegisterEvents(@DriveBarExternalDrag,
+      @DriveBarExternalDrag, @DriveBarExternalDrop, @DriveBarExternalLeave);
+  if Assigned(FRightDriveDropTarget) then
+    FRightDriveDropTarget.RegisterEvents(@DriveBarExternalDrag,
+      @DriveBarExternalDrag, @DriveBarExternalDrop, @DriveBarExternalLeave);
 
   // Load command line history
   edtCommand.Items.Assign(glsCmdLineHistory);
@@ -1370,6 +1419,9 @@ procedure TfrmMain.dskToolButtonMouseDown(Sender: TObject;
 var
   ANotebook: TFileViewNotebook;
 begin
+  if (Button = mbLeft) and (Sender is TKASToolButton) and
+     (TKASToolButton(Sender).ToolItem is TKASFolderItem) then
+    TKASToolButton(Sender).BeginDrag(False, 5);
   if Button = mbMiddle then
   begin
     if Sender is TKASToolButton then
@@ -1507,6 +1559,11 @@ begin
     FileView := FrameRight
   else
     FileView := ActiveFrame;
+  if TKASToolButton(Sender).ToolItem is TKASFolderItem then
+  begin
+    SetFileSystemPath(FileView, TKASFolderItem(TKASToolButton(Sender).ToolItem).FolderPath);
+    Exit;
+  end;
   PanelButtonClick(Sender as TKASToolButton, FileView);
 end;
 
@@ -1517,6 +1574,12 @@ var
   TargetFileSource: IFileSource;
   TargetPath: String;
 begin
+  // Total Commander style: a folder drop pins a shortcut instead of copying files.
+  if DraggedFolderPath(Source) <> '' then
+  begin
+    DriveBarDragDrop(Sender, Source, X, Y);
+    Exit;
+  end;
   if Sender is TKASToolButton then
   begin
     SourceFiles := ActiveFrame.CloneSelectedOrActiveFiles;
@@ -1540,6 +1603,180 @@ begin
       SourceFiles.Free;
     end;
   end;
+end;
+
+procedure TfrmMain.AddDriveBarFolderButtons(dskPanel: TKASToolBar);
+var
+  I: Integer;
+  Item: TKASFolderItem;
+  Button: TKASToolButton;
+  Bitmap: Graphics.TBitmap;
+begin
+  // Pinned folders follow the drive buttons.
+  for I := 0 to FDriveFolders.Count - 1 do
+  begin
+    Item := TKASFolderItem.Create;
+    Item.FolderPath := FDriveFolders[I];
+    Item.Text := ExtractFileName(ExcludeTrailingPathDelimiter(FDriveFolders[I]));
+    if Item.Text = '' then Item.Text := FDriveFolders[I];
+    Item.Hint := FDriveFolders[I];
+    Button := dskPanel.InsertButton(DrivesList.Count + I, Item);
+    Bitmap := PixMapManager.GetFolderIcon(dskPanel.GlyphSize, clBtnFace);
+    Button.Glyph := Bitmap;
+    Bitmap.Free;
+    Button.Glyph.Transparent := True;
+    Button.Transparent := True;
+    Button.Layout := blGlyphLeft;
+  end;
+end;
+
+procedure TfrmMain.UpdateDriveBarFolders(Data: PtrInt);
+var
+  Bar: TKASToolBar;
+  I: Integer;
+begin
+  FDriveFoldersUpdatePending := False;
+  for Bar in TKASToolBarArray.Create(dskRight, dskLeft) do
+  begin
+    if (Bar = dskRight) and not gDriveBar1 then Continue;
+    if (Bar = dskLeft) and not (gDriveBar1 and gDriveBar2) then Continue;
+    Bar.BeginUpdate;
+    try
+      for I := Bar.ButtonCount - 1 downto 0 do
+        if Bar.Buttons[I].ToolItem is TKASFolderItem then
+          Bar.RemoveButton(I);
+      AddDriveBarFolderButtons(Bar);
+    finally
+      Bar.EndUpdate;
+    end;
+  end;
+end;
+
+procedure TfrmMain.DriveBarFoldersChanged;
+begin
+  gConfig.SetValue(gConfig.RootNode, 'DriveBarFolders/Folders', FDriveFolders.CommaText);
+  // Buttons are rebuilt later: the change may come from an event of a button
+  // that would be freed while its handler is still running.
+  if FDriveFoldersUpdatePending then Exit;
+  FDriveFoldersUpdatePending := True;
+  Application.QueueAsyncCall(@UpdateDriveBarFolders, 0);
+end;
+
+function TfrmMain.IsOverDriveBar(const ScreenPoint: TPoint): Boolean;
+var
+  Bar: TKASToolBar;
+begin
+  for Bar in TKASToolBarArray.Create(dskLeft, dskRight) do
+    if Bar.IsVisible and PtInRect(Bar.ClientRect, Bar.ScreenToClient(ScreenPoint)) then
+      Exit(True);
+  Result := False;
+end;
+
+function TfrmMain.DraggedFolderPath(Source: TObject): String;
+var
+  AFile: TFile;
+  SourceView: TFileView;
+begin
+  Result := '';
+  if (Source is TKASToolButton) and
+     (TKASToolButton(Source).ToolItem is TKASFolderItem) then
+    Exit(TKASFolderItem(TKASToolButton(Source).ToolItem).FolderPath);
+  if not ((Source is TWinControl) and
+          (TWinControl(Source).Parent is TFileView)) then Exit;
+  SourceView := TFileView(TWinControl(Source).Parent);
+  if not SourceView.FileSource.IsClass(TFileSystemFileSource) then Exit;
+  AFile := SourceView.CloneActiveFile;
+  try
+    if Assigned(AFile) and AFile.IsNameValid and
+       (AFile.IsDirectory or AFile.IsLinkToDirectory) then
+      Result := AFile.FullPath;
+  finally
+    AFile.Free;
+  end;
+end;
+
+procedure TfrmMain.DriveBarDragOver(Sender, Source: TObject; X, Y: Integer;
+  State: TDragState; var Accept: Boolean);
+begin
+  Accept := DraggedFolderPath(Source) <> '';
+end;
+
+procedure TfrmMain.DriveBarButtonDragOver(Sender, Source: TObject; X, Y: Integer;
+  State: TDragState; var Accept: Boolean; NumberOfButton: Integer);
+begin
+  DriveBarDragOver(Sender, Source, X, Y, State, Accept);
+  if not Accept and (Sender is TKASToolButton) and
+     (TKASToolButton(Sender).ToolItem is TKASDriveItem) then
+    Accept := (Source is TWinControl) and
+              (TWinControl(Source).Parent is TFileView);
+end;
+
+procedure TfrmMain.DriveBarDragDrop(Sender, Source: TObject; X, Y: Integer);
+var
+  FolderPath: String;
+  FromIndex, ToIndex: Integer;
+begin
+  FolderPath := DraggedFolderPath(Source);
+  if (FolderPath = '') or not mbDirectoryExists(FolderPath) then Exit;
+  ToIndex := FDriveFolders.Count;
+  if (Sender is TKASToolButton) and
+     (TKASToolButton(Sender).ToolItem is TKASFolderItem) then
+    ToIndex := FDriveFolders.IndexOf(TKASFolderItem(TKASToolButton(Sender).ToolItem).FolderPath);
+  if ToIndex < 0 then ToIndex := FDriveFolders.Count;
+  FromIndex := FDriveFolders.IndexOf(FolderPath);
+  if FromIndex >= 0 then
+  begin
+    if (FromIndex = ToIndex) or (FromIndex + 1 = ToIndex) then Exit;
+    if ToIndex > FromIndex then Dec(ToIndex);
+    FDriveFolders.Move(FromIndex, ToIndex);
+  end
+  else
+    FDriveFolders.Insert(ToIndex, FolderPath);
+  DriveBarFoldersChanged;
+end;
+
+procedure TfrmMain.DriveBarButtonEndDrag(Sender, Target: TObject; X, Y: Integer);
+var
+  Index: Integer;
+begin
+  // A pinned folder dragged off the drive bars is removed.
+  if Assigned(Target) or not (Sender is TKASToolButton) or
+     not (TKASToolButton(Sender).ToolItem is TKASFolderItem) or
+     IsOverDriveBar(Mouse.CursorPos) then Exit;
+  Index := FDriveFolders.IndexOf(TKASFolderItem(TKASToolButton(Sender).ToolItem).FolderPath);
+  if Index >= 0 then
+  begin
+    FDriveFolders.Delete(Index);
+    DriveBarFoldersChanged;
+  end;
+end;
+
+function TfrmMain.DriveBarExternalDrag(var DropEffect: TDropEffect;
+  ScreenPoint: TPoint): Boolean;
+begin
+  DropEffect := DropLinkEffect;
+  Result := True;
+end;
+
+function TfrmMain.DriveBarExternalLeave: Boolean;
+begin
+  Result := True;
+end;
+
+function TfrmMain.DriveBarExternalDrop(const FileNamesList: TStringList;
+  DropEffect: TDropEffect; ScreenPoint: TPoint): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to FileNamesList.Count - 1 do
+    if mbDirectoryExists(FileNamesList[I]) and
+       (FDriveFolders.IndexOf(FileNamesList[I]) < 0) then
+    begin
+      FDriveFolders.Add(FileNamesList[I]);
+      Result := True;
+    end;
+  if Result then DriveBarFoldersChanged;
 end;
 
 procedure TfrmMain.dskToolButtonMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -1844,6 +2081,10 @@ end;
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   DCDebug('Destroying main form');
+  FreeAndNil(FLeftDriveDropTarget);
+  FreeAndNil(FRightDriveDropTarget);
+  Application.RemoveAsyncCalls(Self);
+  FreeAndNil(FDriveFolders);
 
   if Assigned(HotMan) then
   begin
@@ -2477,6 +2718,11 @@ end;
 
 procedure TfrmMain.dskLeftToolButtonClick(Sender: TObject);
 begin
+  if TKASToolButton(Sender).ToolItem is TKASFolderItem then
+  begin
+    SetFileSystemPath(FrameLeft, TKASFolderItem(TKASToolButton(Sender).ToolItem).FolderPath);
+    Exit;
+  end;
   PanelButtonClick(Sender as TKASToolButton, FrameLeft);
 end;
 
@@ -5252,6 +5498,9 @@ begin
       {/Set Buttons Transparent}
       Button.Layout := blGlyphLeft;
     end; // for
+
+    // Total Commander style: pinned folders after the drive letters.
+    AddDriveBarFolderButtons(dskPanel);
 
     // Add special buttons
     if not gDrivesListButton then

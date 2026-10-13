@@ -108,10 +108,14 @@ object frmMain: TfrmMain
           Flat = True
           ShowCaptions = True
           TabOrder = 0
+          OnDragDrop = DriveBarDragDrop
+          OnDragOver = DriveBarDragOver
           OnToolButtonClick = dskLeftToolButtonClick
           OnToolButtonMouseDown = dskToolButtonMouseDown
           OnToolButtonMouseUp = dskToolButtonMouseUp
           OnToolButtonDragDrop = dskLeftRightToolButtonDragDrop
+          OnToolButtonDragOver = DriveBarButtonDragOver
+          OnToolButtonEndDrag = DriveBarButtonEndDrag
           RadioToolBar = True
           GlyphSize = 16
         end
@@ -142,10 +146,14 @@ object frmMain: TfrmMain
           Flat = True
           ShowCaptions = True
           TabOrder = 0
+          OnDragDrop = DriveBarDragDrop
+          OnDragOver = DriveBarDragOver
           OnToolButtonClick = dskRightToolButtonClick
           OnToolButtonMouseDown = dskToolButtonMouseDown
           OnToolButtonMouseUp = dskToolButtonMouseUp
           OnToolButtonDragDrop = dskLeftRightToolButtonDragDrop
+          OnToolButtonDragOver = DriveBarButtonDragOver
+          OnToolButtonEndDrag = DriveBarButtonEndDrag
           RadioToolBar = True
           GlyphSize = 16
         end
