@@ -624,7 +624,11 @@ begin
       end
       else
       begin
-        if edtCommand.ItemIndex < edtCommand.Items.Count - 1 then
+        if (edtCommand.Items.Count > 0) and
+           ((edtCommand.ItemIndex < 0) or
+            (edtCommand.Text <> edtCommand.Items[edtCommand.ItemIndex])) then
+          edtCommand.ItemIndex := 0
+        else if edtCommand.ItemIndex < edtCommand.Items.Count - 1 then
           edtCommand.ItemIndex := edtCommand.ItemIndex + 1;
       end;
     end;

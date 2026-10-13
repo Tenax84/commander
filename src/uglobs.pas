@@ -177,7 +177,8 @@ procedure SetGlob1KBase(const value: UInt64);
 
 const
   { Default hotkey list version number }
-  hkVersion = 72;
+  hkVersion = 73;
+  // 73 - In "Main" context, added "Ctrl+E" for "cm_CmdLinePrev".
   // 72 - In "Viewer" and "Editor" context, for macOS, added:
   //      "Cmd+G" for Find Next
   //      "Cmd+L" for Goto Line
@@ -236,7 +237,8 @@ const
   // 14 -  Move some colors to colors.json
   // 15 -  Move custom columns colors to colors.json
   // 16 -  Move DirectoryHotList to localconfig.xml
-  ConfigVersion = 16;
+  // 17 - Default typing goes to command line; Alt+typing starts quick search.
+  ConfigVersion = 17;
 
   COLORS_JSON = 'colors.json';
 
@@ -1202,6 +1204,7 @@ begin
                       'Ctrl+Down','',''], 'cm_ShowCmdLineHistory');
       AddIfNotExists(['Ctrl+B'],[],'cm_FlatView');
       AddIfNotExists(['Ctrl+D'],[],'cm_DirHotList');
+      AddIfNotExists(['Ctrl+E'],[],'cm_CmdLinePrev');
       AddIfNotExists(['Ctrl+F'],[],'cm_QuickFilter');
       AddIfNotExists(['Ctrl+H'],[],'cm_DirHistory');
       AddIfNotExists(['Alt+Down'],'cm_DirHistory',['Ctrl+H'],[]); //Historic backward support reason...
@@ -2049,8 +2052,8 @@ begin
   gSeparateTree := False;
 
   { Keys page }
-  gKeyTyping[ktmNone]    := ktaQuickSearch;
-  gKeyTyping[ktmAlt]     := ktaNone;
+  gKeyTyping[ktmNone]    := ktaCommandLine;
+  gKeyTyping[ktmAlt]     := ktaQuickSearch;
   gKeyTyping[ktmCtrlAlt] := ktaQuickFilter;
 
   { File operations page }
@@ -3034,6 +3037,14 @@ begin
         for KeyTypingModifier in TKeyTypingModifier do
           gKeyTyping[KeyTypingModifier] := TKeyTypingAction(GetValue(SubNode,
             TKeyTypingModifierToNodeName[KeyTypingModifier], Integer(gKeyTyping[KeyTypingModifier])));
+        // Move the former default typing actions to the new layout.
+        if (LoadedConfigVersion < 17) and
+           (gKeyTyping[ktmNone] = ktaQuickSearch) and
+           (gKeyTyping[ktmAlt] = ktaNone) then
+        begin
+          gKeyTyping[ktmNone] := ktaCommandLine;
+          gKeyTyping[ktmAlt] := ktaQuickSearch;
+        end;
       end;
     end;
 

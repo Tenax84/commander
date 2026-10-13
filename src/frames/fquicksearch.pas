@@ -498,7 +498,7 @@ begin
         else
           UTF8Key := UTF8LowerCase(UTF8Key);
 
-        case gKeyTyping[ktmNone] of
+        case gKeyTyping[KeyTypingModifier] of
           ktaQuickSearch:
             SearchMode := qsSearch;
           ktaQuickFilter:

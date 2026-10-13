@@ -2164,7 +2164,7 @@ begin
   // Check for certain Ascii keys.
   if (not ((Length(UTF8Key) = 1) and (UTF8Key[1] in ['-', '*', '+', #0..#32]))) then
   begin
-    if (gKeyTyping[ktmNone] = ktaCommandLine)
+    if (GetKeyTypingAction(GetKeyShiftStateEx) = ktaCommandLine)
 {$IFDEF MSWINDOWS}
        // Allow entering international characters with Ctrl+Alt on Windows,
        // if there is no action for Ctrl+Alt and command line typing has no modifiers.
