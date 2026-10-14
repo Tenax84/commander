@@ -122,7 +122,11 @@ implementation
 uses
   IniFiles, StrUtils, FtpAdv, FtpUtils, FtpConfDlg, syncobjs, LazFileUtils,
   LazUTF8, DCClassesUtf8, DCConvertEncoding, SftpSend, ScpSend, FtpProxy,
-  FtpPropDlg, FtpLng, DCFileAttributes;
+  FtpPropDlg, FtpLng, DCFileAttributes
+  {$IFDEF MSWINDOWS}
+  , FtpTcImport
+  {$ENDIF}
+  ;
 
 var
   DefaultIniName: String;
@@ -478,6 +482,76 @@ begin
     WriteConnectionList;
 end;
 
+{$IFDEF MSWINDOWS}
+// Total Commander style
+procedure ImportConnections;
+var
+  I: Integer;
+  Message: String;
+  FileName: String;
+  Connection: TConnection;
+  Connections: TTcConnections;
+  Imported, Skipped, NoPassword: Integer;
+  Buffer: array[0..1023] of AnsiChar;
+begin
+  StrPLCopy(Buffer, TcFindFtpIniFile, High(Buffer));
+  if not gStartupInfo.InputBox(PAnsiChar(rsImportConnections), PAnsiChar(rsImportFileName),
+                               False, Buffer, Length(Buffer)) then Exit;
+  FileName:= Trim(StrPas(Buffer));
+  if (FileName = EmptyStr) then Exit;
+  if not FileExists(FileName) then
+  begin
+    Message:= rsImportFileNotFound + LineEnding + FileName;
+    gStartupInfo.MessageBox(PAnsiChar(Message), 'FTP', MB_OK or MB_ICONERROR);
+    Exit;
+  end;
+  try
+    Connections:= TcReadConnections(FileName);
+  except
+    on E: Exception do
+    begin
+      gStartupInfo.MessageBox(PAnsiChar(E.Message), 'FTP', MB_OK or MB_ICONERROR);
+      Exit;
+    end;
+  end;
+  Imported:= 0;
+  Skipped:= 0;
+  NoPassword:= 0;
+  for I:= 0 to High(Connections) do
+  begin
+    Connection:= TConnection.Create;
+    Connection.ConnectionName:= RepairConnectionName(Connections[I].Name);
+    if ConnectionList.IndexOf(Connection.ConnectionName) >= 0 then
+    begin
+      Inc(Skipped);
+      Connection.Free;
+      Continue;
+    end;
+    Connection.Host:= Connections[I].Host;
+    Connection.Port:= Connections[I].Port;
+    Connection.Path:= Connections[I].Path;
+    Connection.UserName:= Connections[I].UserName;
+    Connection.Password:= Connections[I].Password;
+    Connection.PassiveMode:= Connections[I].PassiveMode;
+    Connection.AutoTLS:= Connections[I].AutoTLS;
+    Connection.FullSSL:= Connections[I].FullSSL;
+    Connection.OpenSSH:= Connections[I].OpenSSH;
+    Connection.ShowHiddenItems:= True;
+    if Connections[I].PasswordLost then Inc(NoPassword);
+    ConnectionList.AddObject(Connection.ConnectionName, Connection);
+    Inc(Imported);
+  end;
+  if Imported > 0 then WriteConnectionList;
+
+  Message:= Format(rsImportResult, [Imported]);
+  if Skipped > 0 then
+    Message+= LineEnding + Format(rsImportSkipped, [Skipped]);
+  if NoPassword > 0 then
+    Message+= LineEnding + Format(rsImportNoPassword, [NoPassword]);
+  gStartupInfo.MessageBox(PAnsiChar(Message), 'FTP', MB_OK or MB_ICONINFORMATION);
+end;
+{$ENDIF}
+
 function EditConnection(ConnectionName: AnsiString): Boolean;
 var
   I: Integer;
@@ -608,12 +682,16 @@ var
   I, RootCount: Integer;
   Connection: TConnection;
   ListRec: PListRec absolute Hdl;
-  RootList: array [0..1] of String;
+  RootList: array [0..{$IFDEF MSWINDOWS}2{$ELSE}1{$ENDIF}] of String;
 begin
   Result := False;
   I := ListRec^.Index;
   RootList[0]:= cAddConnection;
   RootList[1]:= cQuickConnection;
+  {$IFDEF MSWINDOWS}
+  // Total Commander style
+  RootList[2]:= cImportConnections;
+  {$ENDIF}
   RootCount := High(RootList) + 1;
   FillChar(FindData, SizeOf(FindData), 0);
   if I < RootCount then
@@ -752,7 +830,16 @@ begin
                 else begin
                   Result := FS_EXEC_SYMLINK;
                 end;
-              end;
+              end
+            {$IFDEF MSWINDOWS}
+            // Total Commander style
+            else if asFileName = cImportConnections then
+              begin
+                ImportConnections;
+                Result:= FS_EXEC_OK;
+              end
+            {$ENDIF}
+            ;
           end;
           if (Result = FS_EXEC_SYMLINK) then
           begin
@@ -1103,7 +1190,10 @@ begin
       else if asRemoteName = cAddConnection then
         StrPCopy(RemoteName, 'list-add')
       else if asRemoteName = cQuickConnection then
-        StrPCopy(RemoteName, 'view-file');
+        StrPCopy(RemoteName, 'view-file')
+      // Total Commander style
+      else if asRemoteName = cImportConnections then
+        StrPCopy(RemoteName, 'document-open');
     end;
   end;
 end;

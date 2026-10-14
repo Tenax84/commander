@@ -10,10 +10,18 @@ uses
 var
   cAddConnection: String;
   cQuickConnection: String;
+  cImportConnections: String;
 
 resourcestring
   rsAddConnection = 'Add connection';
   rsQuickConnection = 'Quick connection';
+  // Total Commander style
+  rsImportConnections = 'Import from Total Commander';
+  rsImportFileName = 'Total Commander FTP settings file (wcx_ftp.ini):';
+  rsImportFileNotFound = 'File not found:';
+  rsImportResult = 'Imported connections: %d';
+  rsImportSkipped = 'Skipped (a connection with the same name already exists): %d';
+  rsImportNoPassword = 'Passwords that could not be imported (Total Commander master password): %d';
 
 procedure TranslateResourceStrings;
 
@@ -42,6 +50,7 @@ begin
   end;
   cAddConnection:= '<' + rsAddConnection + '>';
   cQuickConnection:= '<' + rsQuickConnection + '>';
+  cImportConnections:= '<' + rsImportConnections + '>';
 end;
 
 end.

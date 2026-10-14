@@ -160,3 +160,30 @@ msgstr ""
 msgid "Quick connection"
 msgstr ""
 
+#: ftplng.rsimportconnections
+msgid "Import from Total Commander"
+msgstr ""
+
+#: ftplng.rsimportfilename
+msgid "Total Commander FTP settings file (wcx_ftp.ini):"
+msgstr ""
+
+#: ftplng.rsimportfilenotfound
+msgid "File not found:"
+msgstr ""
+
+#, object-pascal-format
+#: ftplng.rsimportresult
+msgid "Imported connections: %d"
+msgstr ""
+
+#, object-pascal-format
+#: ftplng.rsimportskipped
+msgid "Skipped (a connection with the same name already exists): %d"
+msgstr ""
+
+#, object-pascal-format
+#: ftplng.rsimportnopassword
+msgid "Passwords that could not be imported (Total Commander master password): %d"
+msgstr ""
+
