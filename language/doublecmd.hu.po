@@ -12148,6 +12148,11 @@ msgstr "Elérhető a Commander új verziója: %s (a jelenlegi: %s).\n\nLetöltse
 msgid "The update could not be installed:\n%s"
 msgstr "A frissítést nem sikerült telepíteni:\n%s"
 
+#: ulng.rsmsgupdatedownloaded
+#, object-pascal-format
+msgid "Commander %s has been downloaded, it will be installed when the program is closed.\nDo you want to restart the program and install it now?"
+msgstr "A Commander %s verziója letöltve, a program bezárásakor települ.\nÚjraindítod most a programot a telepítéshez?"
+
 #: ulng.rsmsgupdateinstalled
 #, object-pascal-format
 msgid "Commander %s has been installed.\nDo you want to restart the program now?"

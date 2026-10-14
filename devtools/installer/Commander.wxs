@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Commander MSI installer (WiX Toolset 5), built by devtools\make-release.ps1.
+  Per-user installation into %LOCALAPPDATA%\Programs\Commander: no administrator
+  rights are needed, and the program directory stays writable, so the settings
+  stay in its settings\ folder (portable mode, settings\doublecmd.inf).
+  The self-updater recognizes an MSI installation by the InstallDir registry
+  value and updates it with the .msi asset of the next release (major upgrade).
+  Variables: Version, SourceDir (the release folder), IconFile, LicenseRtf.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Name="Commander" Manufacturer="Tenax84" Version="$(Version)"
+           UpgradeCode="de68a911-5fa4-49ea-8b81-8d59ab7e95d7"
+           Scope="perUser" Language="1038" Codepage="1250">
+
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+                  DowngradeErrorMessage="A Commander egy újabb verziója már telepítve van." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="Commander.ico" SourceFile="$(IconFile)" />
+    <Property Id="ARPPRODUCTICON" Value="Commander.ico" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/Tenax84/commander" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/Tenax84/commander/releases" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="$(LicenseRtf)" />
+    <ui:WixUI Id="WixUI_Minimal" />
+
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="LocalProgramsFolder" Name="Programs">
+        <Directory Id="INSTALLFOLDER" Name="Commander" />
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder" />
+    <StandardDirectory Id="DesktopFolder" />
+
+    <ComponentGroup Id="ProgramFiles" Directory="INSTALLFOLDER">
+      <Files Include="$(SourceDir)\**" />
+    </ComponentGroup>
+
+    <!-- Per-user components need a registry key path; the self-updater reads InstallDir -->
+    <Component Id="Registration" Directory="INSTALLFOLDER">
+      <RegistryValue Root="HKCU" Key="Software\Tenax84\Commander" Name="InstallDir"
+                     Type="string" Value="[INSTALLFOLDER]" KeyPath="yes" />
+      <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Commander"
+                Target="[INSTALLFOLDER]Commander.exe" WorkingDirectory="INSTALLFOLDER" />
+      <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="Commander"
+                Target="[INSTALLFOLDER]Commander.exe" WorkingDirectory="INSTALLFOLDER" />
+      <RemoveFolder Id="RemoveLocalProgramsFolder" Directory="LocalProgramsFolder" On="uninstall" />
+      <RemoveFolder Id="RemoveInstallFolder" On="uninstall" />
+    </Component>
+
+    <Feature Id="Main" Title="Commander">
+      <ComponentGroupRef Id="ProgramFiles" />
+      <ComponentRef Id="Registration" />
+    </Feature>
+  </Package>
+</Wix>

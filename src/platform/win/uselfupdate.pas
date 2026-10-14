@@ -11,6 +11,10 @@
    renamed, so they are moved aside and deleted on the next startup.
    The settings directory is never changed.
 
+   If the program was installed by the MSI installer (the InstallDir
+   registry value points to the program directory), the .msi asset is
+   downloaded instead and installed by msiexec after the program exits.
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -25,7 +29,7 @@ interface
 
 const
   // Version of this fork, the release tag is 'v' + CommanderVersion
-  CommanderVersion = '1.0.0';
+  CommanderVersion = '1.1.0';
   CommanderRepository = 'Tenax84/commander';
 
 {en
@@ -36,7 +40,7 @@ procedure StartUpdateCheck;
 implementation
 
 uses
-  Classes, Windows, WinINet, SysUtils, fpjson, jsonparser, Zipper,
+  Classes, Windows, WinINet, SysUtils, fpjson, jsonparser, Zipper, Registry, base64,
   uGlobsPaths, uShowMsg, uLng, uDebug, fMain;
 
 const
@@ -47,6 +51,9 @@ const
   OldListName = 'update-old.txt';
   // The version the user does not want to be offered again
   SkipFileName = 'update-skip.txt';
+  // Written by the MSI installer (devtools\installer\Commander.wxs)
+  InstallKey = 'Software\Tenax84\Commander';
+  InstallValue = 'InstallDir';
 
 type
 
@@ -56,12 +63,14 @@ type
   private
     FVersion: String;
     FAssetUrl: String;
+    FMsiName: String;
     FOldFiles: TStringList;
     function CheckRelease: Boolean;
     procedure Download(const AFileName: String);
     procedure Install(const ASourceDir: String);
     procedure InstallFile(const ASource, ATarget: String);
     procedure Restart;
+    procedure RunAfterExit(AInstall, ARestart: Boolean);
   protected
     procedure Execute; override;
   public
@@ -77,6 +86,24 @@ end;
 function WideName(const S: String): UnicodeString; inline;
 begin
   Result:= UTF8Decode(S);
+end;
+
+{en
+   Returns True if the program directory was installed by the MSI installer.
+}
+function IsMsiInstall: Boolean;
+var
+  Reg: TRegistry;
+begin
+  Result:= False;
+  Reg:= TRegistry.Create(KEY_READ);
+  try
+    Reg.RootKey:= HKEY_CURRENT_USER;
+    if Reg.OpenKeyReadOnly(InstallKey) and Reg.ValueExists(InstallValue) then
+      Result:= SameText(IncludeTrailingPathDelimiter(Reg.ReadString(InstallValue)), ProgramDir);
+  finally
+    Reg.Free;
+  end;
 end;
 
 function Max(A, B: Integer): Integer; inline;
@@ -242,7 +269,7 @@ end;
 function TUpdateThread.CheckRelease: Boolean;
 var
   I: Integer;
-  Name: String;
+  Name, Ext: String;
   Json: TJSONData;
   Assets: TJSONArray;
   Stream: TStringStream;
@@ -267,10 +294,12 @@ begin
     if ReadFirstLine(gpCfgDir + SkipFileName) = FVersion then Exit;
     if not (Json.FindPath('assets') is TJSONArray) then Exit;
     Assets:= TJSONArray(Json.FindPath('assets'));
+    // An MSI installation is updated by the installer, a portable one from the zip
+    if IsMsiInstall then Ext:= '.msi' else Ext:= '.zip';
     for I:= 0 to Assets.Count - 1 do
     begin
       Name:= LowerCase(Assets.Objects[I].Get('name', ''));
-      if (ExtractFileExt(Name) = '.zip') and ((FAssetUrl = EmptyStr) or (Pos('win64', Name) > 0)) then
+      if (ExtractFileExt(Name) = Ext) and ((FAssetUrl = EmptyStr) or (Pos('win64', Name) > 0)) then
         FAssetUrl:= Assets.Objects[I].Get('browser_download_url', '');
     end;
     Result:= FAssetUrl <> EmptyStr;
@@ -353,15 +382,39 @@ begin
 end;
 
 procedure TUpdateThread.Restart;
+begin
+  RunAfterExit(FMsiName <> EmptyStr, True);
+end;
+
+{en
+   Starts a hidden PowerShell that waits until this process has finished,
+   then runs the downloaded installer and/or starts the program again.
+}
+procedure TUpdateThread.RunAfterExit(AInstall, ARestart: Boolean);
+
+  function Quote(const S: String): String;
+  begin
+    Result:= '''' + StringReplace(S, '''', '''''', [rfReplaceAll]) + '''';
+  end;
+
 var
+  Script: UnicodeString;
   Command: UnicodeString;
+  Bytes: RawByteString;
   StartupInfo: TStartupInfoW;
   ProcessInfo: TProcessInformation;
 begin
-  // Start the new version after this process has finished
-  Command:= WideName(Format('powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -Command ' +
-                            '"Wait-Process -Id %d -ErrorAction SilentlyContinue; Start-Process -FilePath ''%s''"',
-                            [GetCurrentProcessId, StringReplace(ProgramDir + ExeName, '''', '''''', [rfReplaceAll])]));
+  Script:= WideName(Format('Wait-Process -Id %d -ErrorAction SilentlyContinue;', [GetCurrentProcessId]));
+  if AInstall then
+    Script+= WideName('Start-Process -FilePath msiexec.exe -Wait -ArgumentList ' +
+                      Quote('/i "' + FMsiName + '" /passive /norestart') + ';');
+  if ARestart then
+    Script+= WideName('Start-Process -FilePath ' + Quote(ProgramDir + ExeName));
+  // The encoded command (base64 of UTF-16LE) needs no quoting on the command line
+  SetLength(Bytes, Length(Script) * SizeOf(WideChar));
+  Move(Script[1], Bytes[1], Length(Bytes));
+  Command:= 'powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -EncodedCommand ' +
+            WideName(EncodeStringBase64(Bytes));
   UniqueString(Command);
   FillChar(StartupInfo, SizeOf(StartupInfo), 0);
   StartupInfo.cb:= SizeOf(StartupInfo);
@@ -370,8 +423,10 @@ begin
   begin
     CloseHandle(ProcessInfo.hThread);
     CloseHandle(ProcessInfo.hProcess);
-    frmMain.Close;
-  end;
+    if ARestart then frmMain.Close;
+  end
+  else if AInstall then
+    msgError(Self, Format(rsMsgUpdateFailed, [SysErrorMessage(GetLastError)]));
 end;
 
 procedure TUpdateThread.Execute;
@@ -407,6 +462,31 @@ begin
   end;
 
   TempDir:= IncludeTrailingPathDelimiter(GetTempDir(False)) + 'Commander-update' + PathDelim;
+  if ExtractFileExt(LowerCase(FAssetUrl)) = '.msi' then
+  begin
+    // The installer runs after the program has exited, the package is
+    // left in the temporary directory, the next update deletes it
+    try
+      DeleteDirectory(TempDir);
+      ForceDirectories(TempDir);
+      FMsiName:= TempDir + 'Commander-' + FVersion + '.msi';
+      Download(FMsiName);
+    except
+      on E: Exception do
+      begin
+        msgError(Self, Format(rsMsgUpdateFailed, [E.Message]));
+        Exit;
+      end;
+    end;
+    // No: the update is installed when the user closes the program
+    if MsgBox(Self, Format(rsMsgUpdateDownloaded, [FVersion]), [msmbYes, msmbNo],
+              msmbYes, msmbNo) = mmrYes then
+      Synchronize(@Restart)
+    else
+      RunAfterExit(True, False);
+    Exit;
+  end;
+
   try
     try
       DeleteDirectory(TempDir);

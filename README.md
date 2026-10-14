@@ -6,11 +6,12 @@ A **Commander** a [Double Commander](https://github.com/doublecmd/doublecmd) (DC
 
 ## Letöltés és telepítés
 
-1. A [Releases](https://github.com/Tenax84/commander/releases/latest) oldalról töltsd le a `Commander-<verzió>-win64.zip` fájlt.
-2. Csomagold ki egy tetszőleges mappába, például `C:\Commander` vagy `D:\Programok\Commander`.
-3. Indítsd el a `Commander.exe`-t.
+A legutóbbi kiadás a [Releases](https://github.com/Tenax84/commander/releases/latest) oldalon érhető el, a verziók változásai a [CHANGELOG.md](CHANGELOG.md)-ben olvashatók. 64 bites Windows kell hozzá. Két formában tölthető le:
 
-A program **hordozható**: a beállításokat a saját `settings\` mappájában tárolja, telepítőre és rendszergazdai jogra nincs szükség. 64 bites Windows kell hozzá.
+- **Telepítő** (`Commander-<verzió>-win64.msi`): a programot a felhasználó saját mappájába (`%LOCALAPPDATA%\Programs\Commander`) telepíti, rendszergazdai jog nélkül. Start menü- és asztali parancsikont is létrehoz, és a Programok és szolgáltatások között eltávolítható. Eltávolításkor a beállítások (`settings\`) megmaradnak.
+- **Hordozható változat** (`Commander-<verzió>-win64.zip`): csomagold ki egy tetszőleges mappába (például `C:\Commander` vagy `D:\Programok\Commander`), és indítsd el a `Commander.exe`-t.
+
+A beállításokat a program mindkét esetben a saját mappájának `settings\` almappájában tárolja.
 
 A konfigurációs fájlok neve ugyanaz, mint a DC-ben (`doublecmd.xml`, `shortcuts.scf` stb.), így egy meglévő DC-beállítás átmásolható a `settings\` mappába.
 
@@ -18,11 +19,13 @@ A konfigurációs fájlok neve ugyanaz, mint a DC-ben (`doublecmd.xml`, `shortcu
 
 Indításkor a program a háttérben megnézi, hogy van-e újabb kiadás a GitHub Releases oldalon. Ha van, megkérdezi, hogy telepítse-e:
 
-- **Igen:** letölti és kicsomagolja az új verziót a program mappájába, majd felajánlja az újraindítást. A futó exe-t és a betöltött DLL-eket nem lehet felülírni, ezért ezeket a frissítő átnevezi (`*.updold`), és a következő induláskor törli.
+- **Igen:** letölti az új verziót.
+  - Az MSI-vel telepített program az új kiadás MSI-jét tölti le. Ezután azonnal újraindítható: a program bezárul, a telepítő lefut, és a program újraindul. Ha most nem indítod újra, a frissítés a program bezárásakor települ.
+  - A hordozható példány a zipet tölti le, kicsomagolja a program mappájába, majd felajánlja az újraindítást. A futó exe-t és a betöltött DLL-eket nem lehet felülírni, ezért ezeket a frissítő átnevezi (`*.updold`), és a következő induláskor törli. Ha a program mappája írásvédett (például a `C:\Program Files` alatt van), a frissítés hibaüzenettel leáll.
 - **Nem:** a következő indításkor újra rákérdez.
 - **Kihagyás:** erre a verzióra többet nem figyelmeztet.
 
-A frissítő a `settings\` mappához nem nyúl. Ha a program mappája írásvédett (például a `C:\Program Files` alatt van), a frissítés hibaüzenettel leáll.
+A frissítő a `settings\` mappához nem nyúl.
 
 ## Változások a Double Commanderhez képest
 
@@ -46,6 +49,7 @@ A frissítő a `settings\` mappához nem nyúl. Ha a program mappája írásvéd
 - **Mappák rögzítése a meghajtósoron:** ha egy mappát a fájlpanelről vagy más programból a meghajtósorra húzol, a meghajtók után gombot kap (a két panel meghajtósora közös). A gombok húzással áthelyezhetők; ha egyet lehúzol a meghajtósorról, eltűnik.
 - **Hálózati útvonalak:** egy elérhetetlen gép vagy megosztás nem fagyasztja le a felületet. A lista a háttérben töltődik be, előtte egy kb. 2 másodperces próba ellenőrzi, hogy a gép elérhető-e. A hiba üzenetablak helyett a panel közepén jelenik meg, és betöltés közben is vissza lehet lépni (Backspace, `..`, Esc). A megosztás gyökeréről a `..` a gép megosztáslistájára lép.
 - **Nincs fekete villanás**, amikor a program minimalizált állapotból visszaáll.
+- **FTP-kapcsolatok átvétele a Total Commanderből:** a Hálózat → FTP alatt az `<Importálás Total Commanderből>` elem beolvassa a TC `wcx_ftp.ini` fájlját, és átveszi a kapcsolatokat a jelszavakkal együtt. A TC mesterjelszavával védett jelszavakat nem lehet átvenni, ezeket a program csatlakozáskor kéri.
 
 ## Fordítás
 
@@ -61,8 +65,20 @@ Mindig a `-Clean` kapcsolóval fordíts, mert részleges újrafordításnál az 
 
 ### Kiadás
 
-1. Írd át a verziószámot (`CommanderVersion`) a `src\platform\win\uselfupdate.pas` fájlban, és commitold.
-2. `devtools\make-release.ps1 -Publish`: lefordítja a programot a `dist\Commander` mappába, elkészíti a `dist\Commander-<verzió>-win64.zip` fájlt, és létrehozza a `v<verzió>` GitHub-kiadást. A programba épített frissítő ezt a zipet tölti le.
+Az MSI-hez [WiX Toolset](https://wixtoolset.org/) 5 kell:
+
+```powershell
+dotnet tool install --global wix --version 5.0.2
+wix extension add -g WixToolset.UI.wixext/5.0.2
+```
+
+1. Írd át a verziószámot (`CommanderVersion`) a `src\platform\win\uselfupdate.pas` fájlban, és írd meg a `CHANGELOG.md` új `## [<verzió>] – <dátum>` szakaszát.
+2. Commitold, és töltsd fel (`git push origin master`).
+3. `devtools\make-release.ps1 -Publish`: lefordítja a programot a `dist\Commander` mappába, elkészíti a `dist\Commander-<verzió>-win64.zip` és `.msi` fájlt (a telepítő forrása a `devtools\installer\Commander.wxs`), és a HEAD commitra létrehozza a `v<verzió>` GitHub-kiadást. A kiadási megjegyzés a `CHANGELOG.md` azonos verziójú szakasza. A programba épített frissítő ezeket a fájlokat tölti le.
+
+Claude Code-ban a `/release` skill (`.claude/skills/release/SKILL.md`) a teljes folyamatot elvégzi, a changelog és a README frissítésével együtt.
+
+A helyi `v*` tagek a Double Commanderéi (az `upstream`-ből jönnek), ezért a Commander kiadási tagjei csak a GitHubon (`origin`) jönnek létre; a szkript nem tolja fel őket.
 
 A frissítő helyi szerverrel is tesztelhető: a `COMMANDER_UPDATE_URL` környezeti változóban megadott címről olvassa a kiadás adatait (a GitHub API `releases/latest` válaszának formátumában).
 

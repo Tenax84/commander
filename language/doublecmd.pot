@@ -12085,6 +12085,11 @@ msgstr ""
 msgid "The update could not be installed:\n%s"
 msgstr ""
 
+#: ulng.rsmsgupdatedownloaded
+#, object-pascal-format
+msgid "Commander %s has been downloaded, it will be installed when the program is closed.\nDo you want to restart the program and install it now?"
+msgstr ""
+
 #: ulng.rsmsgupdateinstalled
 #, object-pascal-format
 msgid "Commander %s has been installed.\nDo you want to restart the program now?"

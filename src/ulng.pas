@@ -209,6 +209,7 @@ resourcestring
   rsMsgUpdateAvailable = 'A new version of Commander is available: %s (current version: %s).'#10#10'Do you want to download and install it now?'#10'(Skip: this version will not be offered again.)';
   rsMsgUpdateInstalled = 'Commander %s has been installed.'#10'Do you want to restart the program now?';
   rsMsgUpdateFailed = 'The update could not be installed:'#10'%s';
+  rsMsgUpdateDownloaded = 'Commander %s has been downloaded, it will be installed when the program is closed.'#10'Do you want to restart the program and install it now?';
   rsMsgErrSetAttribute = 'Can not set attributes for "%s"';
   rsMsgErrSetDateTime = 'Can not set date/time for "%s"';
   rsMsgErrSetOwnership = 'Can not set owner/group for "%s"';
