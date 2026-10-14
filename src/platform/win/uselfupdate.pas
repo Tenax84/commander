@@ -29,7 +29,7 @@ interface
 
 const
   // Version of this fork, the release tag is 'v' + CommanderVersion
-  CommanderVersion = '1.1.0';
+  CommanderVersion = '1.2.0';
   CommanderRepository = 'Tenax84/commander';
 
 {en

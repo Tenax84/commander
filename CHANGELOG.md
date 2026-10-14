@@ -2,6 +2,16 @@
 
 A Commander kiadásainak változásai. A verziószám a Commanderé, nem a Double Commanderé; a kiadások a [GitHub Releases](https://github.com/Tenax84/commander/releases) oldalon érhetők el.
 
+## [1.2.0] – 2026-10-14
+
+### Új
+
+- **FTP-kapcsolatok a meghajtósoron:** az FTP plugin gyökeréből (Hálózat → FTP) egy kapcsolatot a meghajtósorra húzva gombot kap, ugyanúgy, mint a rögzített mappák. A gombra kattintva a program megnyitja a kapcsolatot (szükség esetén bekéri a jelszót). Egy kapcsolaton belüli mappa is rögzíthető, ilyenkor a gomb egyenesen oda lép. A gombok húzással áthelyezhetők, és a sorról lehúzva eltűnnek.
+
+### Változott
+
+- Ha egy FTP-n belüli mappát egy meghajtógombra ejtesz, a program a meghajtósorra rögzíti, és nem másolja a meghajtóra (ahogy a helyi mappáknál is).
+
 ## [1.1.0] – 2026-10-14
 
 ### Új
@@ -43,5 +53,6 @@ A Commander első kiadása: a Double Commander 1.3.0 alpha (fejlesztői ág) Win
 - Nincs fekete villanás minimalizált állapotból visszaállításkor.
 - Automatikus frissítés: induláskor a program megnézi, van-e újabb kiadás a GitHubon, és kérésre telepíti.
 
+[1.2.0]: https://github.com/Tenax84/commander/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Tenax84/commander/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Tenax84/commander/releases/tag/v1.0.0

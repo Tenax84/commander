@@ -46,7 +46,7 @@ A frissítő a `settings\` mappához nem nyúl.
 - **Gépelés:** a sima gépelés a parancssorba kerül, az Alt+betű gyorskeresést indít, mint a TC-ben. A Ctrl+E az előző parancsot hívja elő.
 - **Alt+F4:** kilépés a programból.
 - **Fájlműveleti hibák:** alapértelmezés szerint a program átugorja a hibás fájlt, és a művelet folytatódik.
-- **Mappák rögzítése a meghajtósoron:** ha egy mappát a fájlpanelről vagy más programból a meghajtósorra húzol, a meghajtók után gombot kap (a két panel meghajtósora közös). A gombok húzással áthelyezhetők; ha egyet lehúzol a meghajtósorról, eltűnik.
+- **Mappák rögzítése a meghajtósoron:** ha egy mappát a fájlpanelről vagy más programból a meghajtósorra húzol, a meghajtók után gombot kap (a két panel meghajtósora közös). A gombok húzással áthelyezhetők; ha egyet lehúzol a meghajtósorról, eltűnik. Az FTP-kapcsolatok (Hálózat → FTP) és a kapcsolatokon belüli mappák is rögzíthetők így; a gombra kattintva a program megnyitja a kapcsolatot.
 - **Hálózati útvonalak:** egy elérhetetlen gép vagy megosztás nem fagyasztja le a felületet. A lista a háttérben töltődik be, előtte egy kb. 2 másodperces próba ellenőrzi, hogy a gép elérhető-e. A hiba üzenetablak helyett a panel közepén jelenik meg, és betöltés közben is vissza lehet lépni (Backspace, `..`, Esc). A megosztás gyökeréről a `..` a gép megosztáslistájára lép.
 - **Nincs fekete villanás**, amikor a program minimalizált állapotból visszaáll.
 - **FTP-kapcsolatok átvétele a Total Commanderből:** a Hálózat → FTP alatt az `<Importálás Total Commanderből>` elem beolvassa a TC `wcx_ftp.ini` fájlját, és átveszi a kapcsolatokat a jelszavakkal együtt. A TC mesterjelszavával védett jelszavakat nem lehet átvenni, ezeket a program csatlakozáskor kéri.
