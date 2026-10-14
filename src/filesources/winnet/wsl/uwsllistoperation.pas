@@ -28,7 +28,7 @@ implementation
 
 uses
   LazUTF8, uFile, Windows, uShowMsg, DCOSUtils, uMyWindows, ShlObj, ComObj,
-  ActiveX, DCConvertEncoding, uShellFolder, uShlObjAdditional;
+  ActiveX, DCConvertEncoding, uShellFolder, uShlObjAdditional, uFileSourceOperation;
 
 procedure TWslListOperation.LinuxEnum;
 var
@@ -66,6 +66,9 @@ begin
       CoTaskMemFree(NetworkPIDL);
     end;
   except
+    // Total Commander style: aborting the listing (e.g. leaving the directory
+    // while it is being loaded) is not an error
+    on E: EFileSourceOperationAborting do raise;
     on E: Exception do msgError(Thread, E.Message);
   end;
 end;

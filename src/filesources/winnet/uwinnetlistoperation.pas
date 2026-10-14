@@ -33,7 +33,7 @@ uses
   LazUTF8, uFile, Windows, JwaWinNetWk, JwaLmCons, JwaLmShare, JwaLmApiBuf,
   StrUtils, DCStrUtils, uShowMsg, DCOSUtils, uOSUtils, uNetworkThread, uMyWindows,
   ActiveX, ShlObj, ComObj, DCConvertEncoding, uShellFolder, uShlObjAdditional,
-  uNetPathProbe;
+  uNetPathProbe, uFileSourceOperation;
 
 function TWinNetListOperation.Connect: Boolean;
 var
@@ -222,6 +222,9 @@ begin
       CoTaskMemFree(NetworkPIDL);
     end;
   except
+    // Total Commander style: aborting the listing (e.g. leaving the directory
+    // while it is being loaded) is not an error
+    on E: EFileSourceOperationAborting do raise;
     on E: Exception do msgError(Thread, E.Message);
   end;
 end;

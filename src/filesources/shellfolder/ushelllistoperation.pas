@@ -30,7 +30,8 @@ implementation
 
 uses
   ActiveX, Variants, DCOSUtils, DCDateTimeUtils, ShellAPI, DCStrUtils,
-  uFile, uShellFolder, uShlObjAdditional, uShowMsg, uShellFileSourceUtil;
+  uFile, uShellFolder, uShlObjAdditional, uShowMsg, uShellFileSourceUtil,
+  uFileSourceOperation;
 
 { TShellListOperation }
 
@@ -210,6 +211,9 @@ begin
       ListDirectory;
     end;
   except
+    // Total Commander style: aborting the listing (e.g. leaving the directory
+    // while it is being loaded) is not an error
+    on E: EFileSourceOperationAborting do raise;
     on E: Exception do msgError(Thread, E.Message);
   end;
 end;

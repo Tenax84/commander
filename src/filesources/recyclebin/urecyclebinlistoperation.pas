@@ -24,7 +24,8 @@ implementation
 
 uses
   Windows, ShlObj, ComObj, JwaShlGuid, Variants, DCOSUtils, DCDateTimeUtils,
-  ActiveX, uFile, uShellFolder, uShlObjAdditional, uShowMsg, uShellFileSourceUtil;
+  ActiveX, uFile, uShellFolder, uShlObjAdditional, uShowMsg, uShellFileSourceUtil,
+  uFileSourceOperation;
 
 const
   SID_DISPLACED = '{9B174B33-40FF-11d2-A27E-00C04FC30871}';
@@ -86,6 +87,9 @@ begin
       CoTaskMemFree(TrashPIDL);
     end;
   except
+    // Total Commander style: aborting the listing (e.g. leaving the directory
+    // while it is being loaded) is not an error
+    on E: EFileSourceOperationAborting do raise;
     on E: Exception do msgError(Thread, E.Message);
   end;
 end;
