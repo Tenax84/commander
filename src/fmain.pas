@@ -800,6 +800,7 @@ type
     procedure DriveBarFoldersChanged;
     function IsOverDriveBar(const ScreenPoint: TPoint): Boolean;
     function DraggedFolderPath(Source: TObject): String;
+    procedure OpenDriveBarFolder(FileView: TFileView; const FolderPath: String);
     procedure HideToTray;
     procedure RestoreFromTray;
     procedure ShowTrayIcon(bShow: Boolean);
@@ -1005,7 +1006,7 @@ uses
   Laz2_XMLRead, DCOSUtils, DCStrUtils, fOptions, fOptionsFrame, fOptionsToolbar, uClassesEx,
   uHotDir, uFileSorting, DCBasicTypes, foptionsDirectoryHotlist, uConnectionManager,
   fOptionsToolbarBase, fOptionsToolbarMiddle, fEditor, uColumns, StrUtils, uSysFolders,
-  uColumnsFileView, dmHigh, uFileSourceOperationMisc, uTCStyle
+  uColumnsFileView, dmHigh, uFileSourceOperationMisc, uTCStyle, uWfxPluginFileSource
 {$IFDEF MSWINDOWS}
   , uShellFileSource, uNetworkThread, uMyWindows, uRestoreFlicker, uNetPathProbe
 {$ENDIF}
@@ -1019,6 +1020,7 @@ const
   DCToolItemClipboardHeader = 'DOUBLECMD#TOOLBAR#XMLDATA';
   TCToolbarClipboardHeader  = 'TOTALCMD#BAR#DATA';
   DCToolbarClipboardHeader  = 'DOUBLECMD#BAR#DATA';
+  WfxAddressPrefix = 'wfx://';
 
 function TKASFolderItem.Clone: TKASToolItem;
 begin
@@ -1561,7 +1563,7 @@ begin
     FileView := ActiveFrame;
   if TKASToolButton(Sender).ToolItem is TKASFolderItem then
   begin
-    SetFileSystemPath(FileView, TKASFolderItem(TKASToolButton(Sender).ToolItem).FolderPath);
+    OpenDriveBarFolder(FileView, TKASFolderItem(TKASToolButton(Sender).ToolItem).FolderPath);
     Exit;
   end;
   PanelButtonClick(Sender as TKASToolButton, FileView);
@@ -1621,7 +1623,12 @@ begin
     if Item.Text = '' then Item.Text := FDriveFolders[I];
     Item.Hint := FDriveFolders[I];
     Button := dskPanel.InsertButton(DrivesList.Count + I, Item);
-    Bitmap := PixMapManager.GetFolderIcon(dskPanel.GlyphSize, clBtnFace);
+    Bitmap := nil;
+    // File system plugin connections (e.g. FTP) get a network icon.
+    if StrBegins(FDriveFolders[I], WfxAddressPrefix) then
+      Bitmap := PixMapManager.GetThemeIcon('network-wired', dskPanel.GlyphSize);
+    if Bitmap = nil then
+      Bitmap := PixMapManager.GetFolderIcon(dskPanel.GlyphSize, clBtnFace);
     Button.Glyph := Bitmap;
     Bitmap.Free;
     Button.Glyph.Transparent := True;
@@ -1684,14 +1691,71 @@ begin
   if not ((Source is TWinControl) and
           (TWinControl(Source).Parent is TFileView)) then Exit;
   SourceView := TFileView(TWinControl(Source).Parent);
-  if not SourceView.FileSource.IsClass(TFileSystemFileSource) then Exit;
   AFile := SourceView.CloneActiveFile;
   try
-    if Assigned(AFile) and AFile.IsNameValid and
-       (AFile.IsDirectory or AFile.IsLinkToDirectory) then
-      Result := AFile.FullPath;
+    if not (Assigned(AFile) and AFile.IsNameValid) then Exit;
+    if SourceView.FileSource.IsClass(TFileSystemFileSource) then
+    begin
+      if AFile.IsDirectory or AFile.IsLinkToDirectory then
+        Result := AFile.FullPath;
+    end
+    // File system plugin (e.g. FTP): a connection in the plugin root
+    // (special entries like <Quick connection> are skipped) or a folder.
+    else if SourceView.FileSource.IsClass(TWfxPluginFileSource) then
+    begin
+      if AFile.IsDirectory then
+        Result := SourceView.CurrentAddress + IncludeTrailingPathDelimiter(AFile.FullPath)
+      else if (AFile.Path = PathDelim) and not StrBegins(AFile.Name, '<') then
+        Result := SourceView.CurrentAddress + AFile.FullPath;
+    end;
   finally
     AFile.Free;
+  end;
+end;
+
+procedure TfrmMain.OpenDriveBarFolder(FileView: TFileView; const FolderPath: String);
+var
+  Index: Integer;
+  RootName, Path: String;
+  AFile: TFile;
+  FileSource: IFileSource;
+begin
+  if not StrBegins(FolderPath, WfxAddressPrefix) then
+  begin
+    SetFileSystemPath(FileView, FolderPath);
+    Exit;
+  end;
+  // wfx://<plugin root name><path>
+  Path := Copy(FolderPath, Length(WfxAddressPrefix) + 1, MaxInt);
+  Index := Pos(PathDelim, Path);
+  if Index = 0 then Exit;
+  RootName := Copy(Path, 1, Index - 1);
+  Path := Copy(Path, Index, MaxInt);
+  FileSource := FileSourceManager.Find(TWfxPluginFileSource, WfxAddressPrefix + RootName);
+  if not Assigned(FileSource) then
+    FileSource := TWfxPluginFileSource.CreateByRootName(RootName);
+  if not Assigned(FileSource) then
+  begin
+    msgError(Format(rsMsgChDirFailed, [FolderPath]));
+    Exit;
+  end;
+  if FileView.FileSource.Equals(FileSource) then
+    FileView.CurrentPath := PathDelim
+  else
+    FileView.AddFileSource(FileSource, PathDelim);
+  if Path = PathDelim then Exit;
+  if StrEnds(Path, PathDelim) then
+    FileView.CurrentPath := Path
+  else begin
+    // A connection is opened like pressing Enter on it (the plugin connects
+    // and returns the start folder).
+    AFile := TWfxPluginFileSource.CreateFile(PathDelim);
+    try
+      AFile.Name := Copy(Path, 2, MaxInt);
+      ChooseFile(FileView, FileSource, AFile);
+    finally
+      AFile.Free;
+    end;
   end;
 end;
 
@@ -1717,7 +1781,8 @@ var
   FromIndex, ToIndex: Integer;
 begin
   FolderPath := DraggedFolderPath(Source);
-  if (FolderPath = '') or not mbDirectoryExists(FolderPath) then Exit;
+  if (FolderPath = '') or not (StrBegins(FolderPath, WfxAddressPrefix) or
+     mbDirectoryExists(FolderPath)) then Exit;
   ToIndex := FDriveFolders.Count;
   if (Sender is TKASToolButton) and
      (TKASToolButton(Sender).ToolItem is TKASFolderItem) then
@@ -2720,7 +2785,7 @@ procedure TfrmMain.dskLeftToolButtonClick(Sender: TObject);
 begin
   if TKASToolButton(Sender).ToolItem is TKASFolderItem then
   begin
-    SetFileSystemPath(FrameLeft, TKASFolderItem(TKASToolButton(Sender).ToolItem).FolderPath);
+    OpenDriveBarFolder(FrameLeft, TKASFolderItem(TKASToolButton(Sender).ToolItem).FolderPath);
     Exit;
   end;
   PanelButtonClick(Sender as TKASToolButton, FrameLeft);
