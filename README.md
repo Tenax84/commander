@@ -45,7 +45,7 @@ A frissítő a `settings\` mappához nem nyúl.
 
 ### Kezelés
 
-- **Gépelés:** a sima gépelés a parancssorba kerül, az Alt+betű gyorskeresést indít, mint a TC-ben. A Ctrl+E az előző parancsot hívja elő.
+- **Gépelés:** a sima gépelés a parancssorba kerül, az Alt+betű gyorskeresést indít, mint a TC-ben. A Ctrl+E az előző parancsot hívja elő. A parancssori `cd` a relatív útvonalat (`alma\korte`, `..\x`) az aktív panel mappájához képest értelmezi; ha a célpont fájl, a program a mappájába lép, és kijelöli a fájlt. Ha a vágólapon fájl van, a parancssorba beillesztve (Ctrl+V, Shift+Insert) a fájl teljes útvonala kerül.
 - **Alt+F4:** kilépés a programból.
 - **Fájlműveleti hibák:** alapértelmezés szerint a program átugorja a hibás fájlt, és a művelet folytatódik.
 - **Mappák rögzítése a meghajtósoron:** ha egy mappát a fájlpanelről vagy más programból a meghajtósorra húzol, a meghajtók után gombot kap (a két panel meghajtósora közös). A gombok húzással áthelyezhetők; ha egyet lehúzol a meghajtósorról, eltűnik. Az FTP-kapcsolatok (Hálózat → FTP) és a kapcsolatokon belüli mappák is rögzíthetők így; a gombra kattintva a program megnyitja a kapcsolatot.

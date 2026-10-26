@@ -2,6 +2,17 @@
 
 A Commander kiadásainak változásai. A verziószám a Commanderé, nem a Double Commanderé; a kiadások a [GitHub Releases](https://github.com/Tenax84/commander/releases) oldalon érhetők el.
 
+## [1.3.0] – 2026-10-26
+
+### Új
+
+- **macOS-es változat:** Apple Siliconra (`Commander-1.3.0-macos-arm64.dmg`) és Intelre (`Commander-1.3.0-macos-x86_64.dmg`) is van lemezkép. Saját ikonnal, automatikus frissítéssel, a hálózati kötetek (SMB, AFP, NFS, WebDAV) háttérbeli betöltésével és a fájl parancssorba illesztésével. Valódi Macen még nem próbáltuk ki.
+- **Fájl beillesztése a parancssorba:** ha a vágólapon fájl van (pl. az Intézőben másoltad), a parancssorba beillesztve (Ctrl+V, Shift+Insert, helyi menü) a fájl teljes útvonala kerül. Több fájlnál szóközzel elválasztva, a szóközt tartalmazó útvonalak idézőjelben.
+
+### Változott
+
+- **Parancssori `cd`:** a relatív útvonalat (`alma\korte`, `..\x`, `.\x`) az aktív panel mappájához képest értelmezi, a `\mappa` alakot az aktív panel meghajtóján. Ha a célpont fájl, a program a mappájába lép, és kijelöli a fájlt.
+
 ## [1.2.0] – 2026-10-14
 
 ### Új
@@ -53,6 +64,7 @@ A Commander első kiadása: a Double Commander 1.3.0 alpha (fejlesztői ág) Win
 - Nincs fekete villanás minimalizált állapotból visszaállításkor.
 - Automatikus frissítés: induláskor a program megnézi, van-e újabb kiadás a GitHubon, és kérésre telepíti.
 
+[1.3.0]: https://github.com/Tenax84/commander/releases/tag/v1.3.0
 [1.2.0]: https://github.com/Tenax84/commander/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Tenax84/commander/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Tenax84/commander/releases/tag/v1.0.0
