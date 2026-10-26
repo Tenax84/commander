@@ -51,7 +51,7 @@ jobs:
     - name: Install Lazarus
       uses: doublecmd/lazarus-install@win
       with:
-        lazarus-version: "4.8"
+        lazarus-version: "stable"  # = 4.8; the action does not accept "4.8" explicitly
 
     - name: Install WiX Toolset
       run: |
