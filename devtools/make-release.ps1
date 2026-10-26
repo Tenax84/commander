@@ -7,7 +7,9 @@
 # példány a .zip-et, az MSI-vel telepített a .msi-t.
 # Az MSI-hez WiX Toolset 5 kell: dotnet tool install --global wix --version 5.0.2
 #                                wix extension add -g WixToolset.UI.wixext/5.0.2
-param([switch]$Publish, [switch]$NoBuild)
+# -WithMac: the release notes also list the macOS disk images (built by the GitHub Actions
+# workflow .github/workflows/commander-release.yml, which also publishes the release).
+param([switch]$Publish, [switch]$NoBuild, [switch]$WithMac)
 $ErrorActionPreference = 'Stop'
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 Set-Location $root
@@ -40,6 +42,17 @@ $install = @"
 
 A már telepített program induláskor magától felajánlja a frissítést.
 "@
+if ($WithMac) {
+  $install = $install.Replace("`r`n", "`n").Replace("`n`nA már telepített program", @"
+
+- ``Commander-$ver-macos-arm64.dmg``: macOS, Apple Silicon (M1 és újabb) processzorra.
+- ``Commander-$ver-macos-x86_64.dmg``: macOS, Intel processzorra.
+
+A macOS-es változat nincs az Apple-nél hitelesítve. Az ``Alkalmazások`` mappába húzás után futtasd a Terminálban: ``xattr -cr /Applications/Commander.app``
+
+A már telepített Windowsos program
+"@)
+}
 New-Item -ItemType Directory -Force $dist | Out-Null
 [IO.File]::WriteAllText($notesFile, "$section`n`n$install`n", (New-Object Text.UTF8Encoding $false))
 

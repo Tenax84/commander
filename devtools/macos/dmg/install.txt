@@ -1,0 +1,13 @@
+Commander telepítése macOS-en
+
+1. Húzd a "Commander.app"-ot az "Alkalmazások" (Applications) mappába.
+
+2. A program nincs az Apple-nél hitelesítve, ezért az első indítás előtt
+   futtasd a Terminálban:
+
+   xattr -cr /Applications/Commander.app
+
+A Commander a Double Commander (https://doublecmd.sourceforge.io)
+Total Commander-szerű változata.
+
+https://github.com/Tenax84/commander

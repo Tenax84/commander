@@ -1,6 +1,6 @@
 ---
 name: release
-description: Új Commander-kiadás készítése és közzététele a GitHubon (Tenax84/commander) – verzióemelés, CHANGELOG.md-bejegyzés, README-frissítés, fordítás, MSI-telepítő és hordozható zip, commit, push, GitHub release. Használd, ha a felhasználó új kiadást, release-t, verziót, telepítőt vagy MSI-t kér, vagy azt, hogy a változások jussanak el az önfrissítéshez.
+description: Új Commander-kiadás készítése és közzététele a GitHubon (Tenax84/commander) – verzióemelés, CHANGELOG.md-bejegyzés, README-frissítés, fordítás, MSI-telepítő, hordozható zip és macOS DMG (GitHub Actions), commit, push, GitHub release. Használd, ha a felhasználó új kiadást, release-t, verziót, telepítőt vagy MSI-t kér, vagy azt, hogy a változások jussanak el az önfrissítéshez.
 ---
 
 # Commander-kiadás
@@ -84,13 +84,19 @@ Ellenőrzés a közzététel előtt:
 - a `dist\release-notes-<verzió>.md` a CHANGELOG új szakaszát tartalmazza;
 - ha a telepítő vagy a frissítő változott: telepítsd csendesen (`msiexec /i <msi> /qn`), indítsd el a `%LOCALAPPDATA%\Programs\Commander\Commander.exe`-t, majd távolítsd el (`msiexec /x <msi> /qn`). Utána töröld a próbatelepítés `settings\` maradványát. A frissítő a `COMMANDER_UPDATE_URL` környezeti változóval helyi szerverről is tesztelhető (lásd README). A párbeszédablak gombjait `WM_COMMAND`/`BN_CLICKED` üzenettel nyomd meg a szülőablaknak küldve, ne billentyűleütéssel: a felhasználó ugyanazon a gépen dolgozik.
 
-Majd a közzététel:
+Majd a közzététel a GitHub Actions workflow-val (`.github/workflows/commander-release.yml`). Ez a feltöltött `master` HEAD-jét fordítja: Windowson Lazarus 4.8-cal a `make-release.ps1 -WithMac`-et futtatja (MSI + zip), macOS-en a `devtools/macos/build-mac.sh`-val két DMG-t készít (`Commander-<verzió>-macos-arm64.dmg`, `-macos-x86_64.dmg`). A kiadást csak a végén, mind a négy fájllal egyszerre hozza létre, így a frissítő soha nem lát fél kiadást. Kb. 20–25 perc, a macOS-es job a hosszabb.
 
-```powershell
-devtools\make-release.ps1 -Publish -NoBuild
+```bash
+gh workflow run commander-release.yml --repo Tenax84/commander --ref master
+sleep 5; RUN=$(gh run list --repo Tenax84/commander --workflow commander-release.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch $RUN --repo Tenax84/commander --exit-status
 ```
 
-Ez a `v<verzió>` taget a GitHubon hozza létre a HEAD commitra (`gh release create --target`), feltölti az MSI-t és a zipet, a megjegyzés a `release-notes` fájl lesz. **Helyi taget ne hozz létre, és ne told fel** (`git push --tags` tilos): ütközne a Double Commander tagjeivel.
+A `gh run watch` sokáig fut: az AI Center háttér-helperével indítsd. Ha a workflow elbukik: `gh run view $RUN --repo Tenax84/commander --log-failed`. Próbafuttatás közzététel nélkül: `-f publish=false` (az eredmény a run artifactjai között lesz). A `version` job leáll, ha a `CHANGELOG.md`-ből hiányzik a szakasz, vagy ha a `v<verzió>` kiadás már létezik.
+
+Tartalék, ha a CI nem használható: `devtools\make-release.ps1 -Publish -NoBuild` helyben, csak a Windowsos fájlokkal hozza létre a kiadást.
+
+**Helyi taget ne hozz létre, és ne told fel** (`git push --tags` tilos): ütközne a Double Commander tagjeivel. A taget a workflow a GitHubon hozza létre (`gh release create --target <sha>`).
 
 ## 7. Ellenőrzés
 
@@ -99,6 +105,6 @@ gh release view v<verzió> --repo Tenax84/commander --json tagName,isDraft,isPre
 curl -s https://api.github.com/repos/Tenax84/commander/releases/latest | grep -E '"tag_name"|browser_download_url'
 ```
 
-A `releases/latest` az új taget adja, mindkét asset szerepel, és a kiadás nem draft és nem prerelease. Ha a repó privát lenne, az API 404-et ad, és a frissítés csendben elmarad; a repónak publikusnak kell maradnia.
+A `releases/latest` az új taget adja, mind a négy asset (msi, zip, két dmg) szerepel, és a kiadás nem draft és nem prerelease. Ha a repó privát lenne, az API 404-et ad, és a frissítés csendben elmarad; a repónak publikusnak kell maradnia.
 
 A végén írd meg a felhasználónak a kiadás linkjét, a verziót, a changelog lényegét, és hogy mit teszteltél.

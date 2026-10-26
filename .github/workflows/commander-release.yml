@@ -1,0 +1,173 @@
+# Commander release: Windows installer (MSI) + portable zip, macOS disk images (Apple Silicon
+# and Intel), then the v<version> GitHub release with all of them.
+# The version comes from CommanderVersion in src/platform/win/uselfupdate.pas, the release
+# notes from the matching "## [<version>]" section of CHANGELOG.md.
+# Start: gh workflow run commander-release.yml --repo Tenax84/commander [-f publish=false]
+name: Commander release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Create the GitHub release (otherwise only the build artifacts)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: commander-release
+  cancel-in-progress: false
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v7
+
+    - name: Read and check the version
+      id: ver
+      run: |
+           VER=$(grep -o "CommanderVersion = '[^']*'" src/platform/win/uselfupdate.pas | cut -d"'" -f2)
+           [ -n "$VER" ] || { echo "::error::CommanderVersion not found"; exit 1; }
+           grep -q "^## \[$VER\]" CHANGELOG.md || { echo "::error::CHANGELOG.md has no '## [$VER]' section"; exit 1; }
+           if [ "$PUBLISH" = "true" ] && gh release view "v$VER" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+             echo "::error::Release v$VER already exists"; exit 1
+           fi
+           echo "Commander $VER"
+           echo "version=$VER" >> "$GITHUB_OUTPUT"
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PUBLISH: ${{ inputs.publish }}
+
+  build-win:
+    needs: version
+    runs-on: windows-latest
+    steps:
+    - name: Install Lazarus
+      uses: doublecmd/lazarus-install@win
+      with:
+        lazarus-version: "4.8"
+
+    - name: Install WiX Toolset
+      run: |
+           dotnet tool install --global wix --version 5.0.2
+           "$env:USERPROFILE\.dotnet\tools" | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
+           & "$env:USERPROFILE\.dotnet\tools\wix.exe" extension add -g WixToolset.UI.wixext/5.0.2
+
+    - name: Checkout source
+      uses: actions/checkout@v7
+
+    - name: Build the installer and the portable zip
+      run: devtools\make-release.ps1 -WithMac
+
+    - name: Share data between jobs
+      uses: actions/upload-artifact@v7
+      with:
+        name: release-win
+        retention-days: 7
+        compression-level: 0
+        path: |
+          dist/Commander-*-win64.msi
+          dist/Commander-*-win64.zip
+          dist/release-notes-*.md
+
+  build-mac:
+    needs: version
+    runs-on: macos-15
+    steps:
+    - name: Restore fpc from cache
+      id: fpc-restore
+      uses: actions/cache/restore@v6
+      with:
+        path: ${{ runner.temp }}/fpc-dmg
+        key: ${{ runner.os }}-fpc
+
+    - name: Download fpc from site
+      if: steps.fpc-restore.outputs.cache-hit != 'true'
+      run: |
+            curl -L -o "${{ runner.temp }}/fpc.dmg" \
+              https://github.com/doublecmd/fpc-3.2.x/releases/download/v3.2.4-rc2/fpc-3.2.4-rc2-aarch64-macosx.dmg
+            hdiutil attach "${{ runner.temp }}/fpc.dmg" -mountpoint "${{ runner.temp }}/fpc-dmg"
+
+    - name: Save fpc to cache
+      if: steps.fpc-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v6
+      with:
+        path: ${{ runner.temp }}/fpc-dmg
+        key: ${{ runner.os }}-fpc
+
+    - name: Install Free Pascal
+      run: |
+           sudo installer -pkg "${{ runner.temp }}/fpc-dmg/fpc-3.2.4-rc2-aarch64-macosx.pkg" -target /
+           sudo fpcmkcfg -d "basepath=/usr/local/lib/fpc/3.2.4" -o /etc/fpc.cfg
+
+    # Same Lazarus as the upstream Double Commander macOS snapshots (needs a newer LCL than 4.x)
+    - name: Get Lazarus source
+      uses: actions/checkout@v7
+      with:
+            repository: 'fpc/Lazarus'
+
+    - name: Build and install Lazarus
+      run: |
+           make all
+           sudo make install
+
+    - name: Create Lazarus config
+      run: |
+           mkdir -p $HOME/.lazarus
+           cp tools/install/macosx/environmentoptions.xml $HOME/.lazarus/environmentoptions.xml
+           sed -i -e "s|_PPCARCH_|fpc|g; s|/Developer/lazarus|/usr/local/share/lazarus|g" $HOME/.lazarus/environmentoptions.xml
+
+    - name: Checkout source
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Get third-party libraries
+      run: |
+           cd install
+           curl -fL -o darwin.tar.gz https://github.com/doublecmd/external/raw/main/darwin.tar.gz
+           tar xzf darwin.tar.gz
+           rm -f darwin.tar.gz
+
+    - name: Build Apple Silicon package
+      run: devtools/macos/build-mac.sh aarch64
+
+    - name: Build Intel package
+      run: devtools/macos/build-mac.sh x86_64
+
+    - name: Share data between jobs
+      uses: actions/upload-artifact@v7
+      with:
+        name: release-mac
+        retention-days: 7
+        compression-level: 0
+        path: dist/Commander-*-macos-*.dmg
+
+  publish:
+    needs: [version, build-win, build-mac]
+    if: inputs.publish
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v8
+      with:
+        path: dist
+        merge-multiple: true
+
+    # The release is created only now, with all assets at once: the self-updater of the
+    # installed programs looks at the latest release and needs its .msi and .zip
+    - name: Create the GitHub release
+      run: |
+           ls -l dist
+           gh release create "v$VER" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+             --title "Commander $VER" --notes-file "dist/release-notes-$VER.md" \
+             dist/Commander-$VER-win64.msi dist/Commander-$VER-win64.zip dist/Commander-$VER-macos-*.dmg
+      env:
+        GH_TOKEN: ${{ github.token }}
+        VER: ${{ needs.version.outputs.version }}

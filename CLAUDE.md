@@ -10,7 +10,7 @@ A repó a `D:\Tenax84\commander` mappa. Benne olyan helyi mappák is vannak, ame
 |---|---|
 | `run\` | Hordozható futtatási könyvtár: a hivatalos v1.2.9 bináris csomag másolata, benne a saját buildünk (`Commander.exe`) és a `settings\` mappa a hordozható konfigurációval. Itt teszteljük a programot. |
 | `screenshots\` | A képernyőképek és villanásmérések kimenete (TC kontra DC). |
-| `dist\` | A `devtools\make-release.ps1` kimenete: `Commander\` (a kiadás mappája), `Commander-<verzió>-win64.zip`, `Commander-<verzió>-win64.msi` és `release-notes-<verzió>.md`. |
+| `dist\` | A `devtools\make-release.ps1` (és macOS-en a `devtools/macos/build-mac.sh`) kimenete: `Commander\` (a kiadás mappája), `Commander-<verzió>-win64.zip`, `Commander-<verzió>-win64.msi` és `release-notes-<verzió>.md`. |
 
 ## Fordítás
 
@@ -29,6 +29,7 @@ devtools\build-dc.ps1 -Mode all -Clean    # komponensek + pluginek + főprogram 
 - A szkript sikeres fordítás után összeállítja a `run\` mappát az `install\windows\install.bat` mintájára: exe, pluginek, `language\`, `pixmaps\`, `default\`, `highlighters\`, `doc\` stb. A `settings\` mappát és a külső DLL-eket nem bántja. Ha a `run\Commander.exe` éppen fut, a másolást kihagyja; ezt a `-NoDeploy` kapcsolóval is el lehet kerülni.
 - Fordítás közben a régi exe `Commander.exe.old` néven megmarad. Ez, a `units\`, a `dist\` és a `components\*\lib\` mappa a .gitignore-ban van.
 - `devtools\make-release.ps1 [-Publish] [-NoBuild]`: kiadás készítése; a teljes folyamatot (verzióemelés, `CHANGELOG.md`, README, commit, push, közzététel) a `/release` skill (`.claude/skills/release/SKILL.md`) írja le. A verziót a `src\platform\win\uselfupdate.pas` `CommanderVersion` konstansából, a kiadási megjegyzést a `CHANGELOG.md` `## [<verzió>]` szakaszából veszi. A `dist\Commander` mappába fordít (`-Mode all -Clean`), letölti a külső DLL-eket, elkészíti a `dist\Commander-<verzió>-win64.zip`-et (benne egy `Commander\` mappa) és a WiX 5-tel a `dist\Commander-<verzió>-win64.msi`-t (`devtools\installer\Commander.wxs`). `-Publish` esetén a GitHubon a HEAD commitra létrehozza a `v<verzió>` kiadást mindkét fájllal; ehhez a munkakönyvtárnak tisztának, a HEAD-nek feltöltöttnek kell lennie. **A helyi `v*` tagek a DC-éi** (upstream), ezért a Commander tagjei csak az `origin`-on léteznek; helyi taget ne hozz létre, és ne told fel. A `gh`-t mindig `--repo Tenax84/commander`-rel hívd.
+- `.github/workflows/commander-release.yml` (GitHub Actions, kézi indítás: `gh workflow run commander-release.yml --repo Tenax84/commander [-f publish=false]`): a kiadás elsődleges útja. Windows-jobja Lazarus 4.8-cal a `make-release.ps1 -WithMac`-et futtatja (MSI + zip), a macOS-es (macos-15, FPC 3.2.4-rc2, Lazarus main forrásból, mint az upstream snapshotoknál) a `devtools/macos/build-mac.sh aarch64|x86_64`-gyel két DMG-t készít (`Commander-<verzió>-macos-arm64.dmg`, `-macos-x86_64.dmg`; a bundle `Commander.app`, benne a bináris neve továbbra is `doublecmd`, a DMG háttere és `install.txt`-je a `devtools/macos/dmg/`-ből jön). A `publish` job a négy fájllal egyszerre hozza létre a `v<verzió>` kiadást a futtatott commitra. A `build-dc.ps1` a Lazarust a `LAZARUS_DIR`-ből, a `C:\lazarus`-ból vagy a PATH-ról veszi. Az upstream workflow-k (`build-release`, `build-snapshot`, `Publish to WinGet`) a forkon le vannak tiltva (`gh workflow disable`).
 
 ## Tesztelés
 

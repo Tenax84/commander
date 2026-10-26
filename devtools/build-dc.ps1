@@ -4,12 +4,19 @@
 param([string]$Mode = 'doublecmd', [string]$BuildMode = 'DarkWin', [switch]$Clean,
       [string]$RunDir = (Join-Path $PSScriptRoot '..\run'), [switch]$NoDeploy)
 $ErrorActionPreference = 'Stop'
-$env:PATH = "C:\lazarus;C:\lazarus\fpc\3.2.2\bin\x86_64-win64;$env:PATH"
+# Lazarus: $env:LAZARUS_DIR, otherwise C:\lazarus, otherwise the lazbuild on the PATH (GitHub Actions)
+$laz = $env:LAZARUS_DIR
+if (-not $laz) {
+  if (Test-Path C:\lazarus\lazbuild.exe) { $laz = 'C:\lazarus' }
+  else { $laz = Split-Path (Get-Command lazbuild.exe).Source }
+}
+$fpcBin = Get-ChildItem "$laz\fpc\*\bin\x86_64-win64" -Directory | Select-Object -First 1
+$env:PATH = "$laz;$($fpcBin.FullName);$env:PATH"
 $src = Resolve-Path (Join-Path $PSScriptRoot '..')
 Set-Location $src
 function Laz([string]$p, [string[]]$more = @()) {
   $extra = @(); if ($Clean) { $extra += '-B' }
-  & C:\lazarus\lazbuild.exe -q @extra $p @more
+  & "$laz\lazbuild.exe" -q @extra $p @more
   if ($LASTEXITCODE -ne 0) { throw "lazbuild failed: $p" }
 }
 if ($Mode -in 'components','all') {

@@ -74,7 +74,9 @@ wix extension add -g WixToolset.UI.wixext/5.0.2
 
 1. Írd át a verziószámot (`CommanderVersion`) a `src\platform\win\uselfupdate.pas` fájlban, és írd meg a `CHANGELOG.md` új `## [<verzió>] – <dátum>` szakaszát.
 2. Commitold, és töltsd fel (`git push origin master`).
-3. `devtools\make-release.ps1 -Publish`: lefordítja a programot a `dist\Commander` mappába, elkészíti a `dist\Commander-<verzió>-win64.zip` és `.msi` fájlt (a telepítő forrása a `devtools\installer\Commander.wxs`), és a HEAD commitra létrehozza a `v<verzió>` GitHub-kiadást. A kiadási megjegyzés a `CHANGELOG.md` azonos verziójú szakasza. A programba épített frissítő ezeket a fájlokat tölti le.
+3. Indítsd el a **Commander release** GitHub Actions workflow-t (`gh workflow run commander-release.yml --repo Tenax84/commander`, vagy a GitHubon az Actions fülön). Ez lefordítja a programot Windowsra és macOS-re, elkészíti a `Commander-<verzió>-win64.msi` telepítőt, a `Commander-<verzió>-win64.zip` hordozható változatot és a `Commander-<verzió>-macos-arm64.dmg` / `-macos-x86_64.dmg` lemezképet, majd a feltöltött commitra létrehozza a `v<verzió>` GitHub-kiadást. A kiadási megjegyzés a `CHANGELOG.md` azonos verziójú szakasza. A programba épített (Windowsos) frissítő az MSI-t vagy a zipet tölti le.
+
+Helyben a `devtools\make-release.ps1` ugyanígy elkészíti a Windowsos fájlokat a `dist\` mappába (próbatelepítéshez); `-Publish` kapcsolóval a kiadást is létrehozza, de csak a Windowsos fájlokkal. A macOS-es csomagot a `devtools/macos/build-mac.sh` készíti.
 
 Claude Code-ban a `/release` skill (`.claude/skills/release/SKILL.md`) a teljes folyamatot elvégzi, a changelog és a README frissítésével együtt.
 
