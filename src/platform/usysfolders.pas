@@ -71,6 +71,22 @@ uses
 {$ENDIF}
   ;
 
+{$IF DEFINED(DARWIN)}
+// Total Commander style: own folder names, so the settings of a Double
+// Commander installed beside it (which uses ApplicationName) are not shared
+const
+  AppFolderName = 'Commander';
+
+function GetSpecifiedFolderPath(Folder: NSSearchPathDirectory): String;
+begin
+  Result:= TDarwinFileUtil.getSpecifiedFolderPath(Folder);
+  if Result = EmptyStr then
+    Result:= GetHomeDir + '/Library/' + AppFolderName
+  else
+    Result:= ExtractFilePath(Result) + AppFolderName;
+end;
+{$ENDIF}
+
 function GetHomeDir : String;
 begin
 {$IF DEFINED(MSWINDOWS)}
@@ -118,7 +134,7 @@ begin
 end;
 {$ELSEIF DEFINED(DARWIN)}
 begin
-  Result:= GetHomeDir + '/Library/Preferences/' + ApplicationName;
+  Result:= GetHomeDir + '/Library/Preferences/' + AppFolderName; // Total Commander style
 end;
 {$ELSEIF DEFINED(HAIKU)}
 begin
@@ -152,7 +168,7 @@ begin
 end;
 {$ELSEIF DEFINED(DARWIN)}
 begin
-  Result:= TDarwinFileUtil.getSpecifiedFolderPath(NSCachesDirectory);
+  Result:= GetSpecifiedFolderPath(NSCachesDirectory); // Total Commander style
 end;
 {$ELSEIF DEFINED(HAIKU)}
 begin
@@ -181,7 +197,7 @@ begin
 end;
 {$ELSEIF DEFINED(DARWIN)}
 begin
-  Result:= TDarwinFileUtil.getSpecifiedFolderPath(NSApplicationSupportDirectory);
+  Result:= GetSpecifiedFolderPath(NSApplicationSupportDirectory); // Total Commander style
 end;
 {$ELSEIF DEFINED(HAIKU)}
 begin
