@@ -6,14 +6,16 @@ A **Commander** a [Double Commander](https://github.com/doublecmd/doublecmd) (DC
 
 ## Letöltés és telepítés
 
-A legutóbbi kiadás a [Releases](https://github.com/Tenax84/commander/releases/latest) oldalon érhető el, a verziók változásai a [CHANGELOG.md](CHANGELOG.md)-ben olvashatók. 64 bites Windows kell hozzá. Két formában tölthető le:
+A legutóbbi kiadás a [Releases](https://github.com/Tenax84/commander/releases/latest) oldalon érhető el, a verziók változásai a [CHANGELOG.md](CHANGELOG.md)-ben olvashatók. Windowsra (64 bites) két formában tölthető le:
 
 - **Telepítő** (`Commander-<verzió>-win64.msi`): a programot a felhasználó saját mappájába (`%LOCALAPPDATA%\Programs\Commander`) telepíti, rendszergazdai jog nélkül. Start menü- és asztali parancsikont is létrehoz, és a Programok és szolgáltatások között eltávolítható. Eltávolításkor a beállítások (`settings\`) megmaradnak.
 - **Hordozható változat** (`Commander-<verzió>-win64.zip`): csomagold ki egy tetszőleges mappába (például `C:\Commander` vagy `D:\Programok\Commander`), és indítsd el a `Commander.exe`-t.
 
-A beállításokat a program mindkét esetben a saját mappájának `settings\` almappájában tárolja.
+Windowson a beállításokat a program mindkét esetben a saját mappájának `settings\` almappájában tárolja.
 
 A konfigurációs fájlok neve ugyanaz, mint a DC-ben (`doublecmd.xml`, `shortcuts.scf` stb.), így egy meglévő DC-beállítás átmásolható a `settings\` mappába.
+
+**macOS-re** az 1.2.0-nál újabb kiadásoktól lemezkép is van: `Commander-<verzió>-macos-arm64.dmg` (Apple Silicon) és `Commander-<verzió>-macos-x86_64.dmg` (Intel). Nyisd meg a lemezképet, és húzd a `Commander.app`-ot az Alkalmazások mappába. A csomag nincs aláírva, ezért első indításkor a Finderben jobb gombbal kattints rá, és válaszd a Megnyitás parancsot. A macOS-es változatot még nem próbáltuk ki, és az automatikus frissítés sem működik rajta.
 
 ## Automatikus frissítés
 
