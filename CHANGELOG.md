@@ -2,6 +2,12 @@
 
 A Commander kiadásainak változásai. A verziószám a Commanderé, nem a Double Commanderé; a kiadások a [GitHub Releases](https://github.com/Tenax84/commander/releases) oldalon érhetők el.
 
+## [1.3.1] – 2026-10-26
+
+### Javítva
+
+- **macOS: saját beállításmappa.** A Commander macOS-en a `~/Library/Preferences/Commander` mappában tárolja a beállításait (a gyorsítótárat a `~/Library/Caches/Commander`, a felhasználói adatokat a `~/Library/Application Support/Commander` mappában), nem a Double Commanderrel közös `doublecmd` mappában. Eddig, ha a gépen korábban Double Commander is volt, a Commander annak beállításaival indult, és pont úgy nézett ki, mint a DC. A régi DC-beállítások nem kerülnek át automatikusan; ha kellenek, a `doublecmd.xml` stb. kézzel átmásolható az új mappába.
+
 ## [1.3.0] – 2026-10-26
 
 ### Új
@@ -64,6 +70,7 @@ A Commander első kiadása: a Double Commander 1.3.0 alpha (fejlesztői ág) Win
 - Nincs fekete villanás minimalizált állapotból visszaállításkor.
 - Automatikus frissítés: induláskor a program megnézi, van-e újabb kiadás a GitHubon, és kérésre telepíti.
 
+[1.3.1]: https://github.com/Tenax84/commander/releases/tag/v1.3.1
 [1.3.0]: https://github.com/Tenax84/commander/releases/tag/v1.3.0
 [1.2.0]: https://github.com/Tenax84/commander/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Tenax84/commander/releases/tag/v1.1.0
