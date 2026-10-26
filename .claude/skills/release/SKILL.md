@@ -5,7 +5,7 @@ description: Új Commander-kiadás készítése és közzététele a GitHubon (T
 
 # Commander-kiadás
 
-A kiadás a programba épített önfrissítő forrása (`src/platform/win/uselfupdate.pas`): induláskor a program a `Tenax84/commander` **legutóbbi, nem draft és nem prerelease** GitHub-kiadását kéri le. Ha a tag (`v<verzió>`) újabb a saját `CommanderVersion`-jénél, felajánlja a frissítést. Az MSI-vel telepített példány a `.msi` assetet, a hordozható a `.zip`-et tölti le. **Mindkét asset kell**, a nevük `Commander-<verzió>-win64.msi` és `Commander-<verzió>-win64.zip` (a frissítő a kiterjesztés és a `win64` alapján választ). Egy hibás kiadás minden felhasználóhoz eljut, ezért a lépéseket ne ugord át.
+A kiadás a programba épített önfrissítő forrása (`src/platform/win/uselfupdate.pas`): induláskor a program a `Tenax84/commander` **legutóbbi, nem draft és nem prerelease** GitHub-kiadását kéri le. Ha a tag (`v<verzió>`) újabb a saját `CommanderVersion`-jénél, felajánlja a frissítést. Az MSI-vel telepített példány a `.msi` assetet, a hordozható a `.zip`-et tölti le. **Mindkét asset kell**, a nevük `Commander-<verzió>-win64.msi` és `Commander-<verzió>-win64.zip` (a frissítő a kiterjesztés és a `win64` alapján választ). A macOS-es frissítő a `Commander-<verzió>-macos-arm64.dmg`, illetve `-macos-x86_64.dmg` assetet keresi (a név végződése alapján), a verziót pedig a bundle `Info.plist`-jéből veszi, amit a `build-mac.sh` ugyanebből a `CommanderVersion`-ből állít be. Egy hibás kiadás minden felhasználóhoz eljut, ezért a lépéseket ne ugord át.
 
 A felhasználóval magyarul kommunikálj, a commitüzenet is magyar.
 

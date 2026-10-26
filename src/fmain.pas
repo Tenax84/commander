@@ -784,7 +784,7 @@ type
     FRestoredHeight: Integer;
     FDelayedEventCtr: Integer;
     FDelayedWMMove, FDelayedWMSize: Boolean;
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
     FEdtCommandWindowProc: TWndMethod;
     procedure edtCommandWindowProc(var TheMessage: TLMessage);
 {$ENDIF}
@@ -1015,7 +1015,7 @@ uses
   , uShellFileSource, uNetworkThread, uMyWindows, uRestoreFlicker, uNetPathProbe, uFindEx, uClipboard
 {$ENDIF}
 {$IFDEF DARWIN}
-  , uCocoaModernFormConfig
+  , uCocoaModernFormConfig, uNetPathProbe, uClipboard
 {$ENDIF}
   ;
 
@@ -1258,7 +1258,7 @@ begin
 
   HMMainForm := HotMan.Register(Self, HotkeysCategory);
   HotMan.Register(edtCommand, 'Command Line');
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
   // Total Commander style: paste the full path of files from the clipboard
   FEdtCommandWindowProc := edtCommand.WindowProc;
   edtCommand.WindowProc := @edtCommandWindowProc;
@@ -6338,7 +6338,7 @@ begin
   CheckCommandLine(GetKeyShiftStateEx, Key);
 end;
 
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
 procedure TfrmMain.edtCommandWindowProc(var TheMessage: TLMessage);
 var
   I: Integer;
@@ -6620,7 +6620,7 @@ begin
               sDir:= ReplaceTilde(sDir);
               sDir:= GetAbsoluteFileName(ActiveFrame.CurrentPath, sDir);
               // Total Commander style: do not access network paths here
-              if {$IFDEF MSWINDOWS}(not IsNetworkPath(sDir)) and{$ENDIF} mbFileExists(sDir) then //if user entered an existing file, let's switch to the parent folder AND select that file
+              if {$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}(not IsNetworkPath(sDir)) and{$ENDIF} mbFileExists(sDir) then //if user entered an existing file, let's switch to the parent folder AND select that file
               begin
                 sFilename:= ExtractFileName(sDir);
                 sDir:= ExtractFileDir(sDir);
@@ -6828,7 +6828,7 @@ procedure TfrmMain.LoadTabsCommandLine(Params: TCommandLineParams);
       if (gVfsModuleList.GetFileSource(aPath) = nil) then
       begin
         // Total Commander style: do not access network paths here
-        if {$IFDEF MSWINDOWS}(not IsNetworkPath(aPath)) and{$ENDIF}
+        if {$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}(not IsNetworkPath(aPath)) and{$ENDIF}
            not mbFileSystemEntryExists(aPath) then
           aPath:= GetDeepestExistingPath(aPath);
       end;
@@ -6839,7 +6839,7 @@ procedure TfrmMain.LoadTabsCommandLine(Params: TCommandLineParams);
         else begin
           AFileView:= aNoteBook.ActivePage.FileView;
           // Total Commander style: do not access network paths here
-          if {$IFDEF MSWINDOWS}(not IsNetworkPath(aPath)) and{$ENDIF} mbFileExists(aPath) then
+          if {$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}(not IsNetworkPath(aPath)) and{$ENDIF} mbFileExists(aPath) then
           begin
             if ChooseFileSource(AFileView, ExtractFileDir(aPath)) then
               AFileView.SetActiveFile(ExtractFileName(aPath));

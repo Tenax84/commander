@@ -11163,8 +11163,8 @@ msgid "network"
 msgstr "网络连接"
 
 #: ulng.rsmfstbiprivilegetips
-msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Double Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
-msgstr "Double Command作为文件管理器，需要获得完全磁盘访问权限。点击此按钮将弹出macOS系统设置页，请添加“Double Commander.app”到“完全磁盘访问权限”列表中完成授权。"
+msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
+msgstr "Double Command作为文件管理器，需要获得完全磁盘访问权限。点击此按钮将弹出macOS系统设置页，请添加“Commander.app”到“完全磁盘访问权限”列表中完成授权。"
 
 #: ulng.rsmfstbiprivilegetips2
 msgid "If you can see me, it means DC has not been authorized yet. DC will hide me once it is complete."

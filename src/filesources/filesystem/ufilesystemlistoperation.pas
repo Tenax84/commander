@@ -26,7 +26,7 @@ implementation
 
 uses
   DCOSUtils, uFile, uFindEx, uOSUtils, uFileSystemFileSource
-  {$IFDEF MSWINDOWS}, uNetPathProbe{$ENDIF};
+  {$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}, uNetPathProbe{$ENDIF};
 
 procedure TFileSystemListOperation.FlatView(const APath: String);
 var
@@ -74,7 +74,7 @@ begin
 
   IsRootPath := FileSource.IsPathAtRoot(Path);
 
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
   // Total Commander style: do not wait for the SMB timeout on an unreachable
   // network path, the file view reports it in the panel
   if not NetPathReachable(Path) then

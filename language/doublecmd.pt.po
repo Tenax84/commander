@@ -11400,8 +11400,8 @@ msgid "network"
 msgstr ""
 
 #: ulng.rsmfstbiprivilegetips
-msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Double Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
-msgstr "Como gestor de ficheiros, o Double Commander requer acesso total ao disco. Clicar neste botão abre a página de definições do macOS. Por favor, adicione \"Double Commander.app\" à lista \"Full Disk Access\" para concluir a autorização."
+msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
+msgstr "Como gestor de ficheiros, o Double Commander requer acesso total ao disco. Clicar neste botão abre a página de definições do macOS. Por favor, adicione \"Commander.app\" à lista \"Full Disk Access\" para concluir a autorização."
 
 #: ulng.rsmfstbiprivilegetips2
 msgid "If you can see me, it means DC has not been authorized yet. DC will hide me once it is complete."

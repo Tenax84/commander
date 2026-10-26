@@ -210,6 +210,7 @@ resourcestring
   rsMsgUpdateInstalled = 'Commander %s has been installed.'#10'Do you want to restart the program now?';
   rsMsgUpdateFailed = 'The update could not be installed:'#10'%s';
   rsMsgUpdateDownloaded = 'Commander %s has been downloaded, it will be installed when the program is closed.'#10'Do you want to restart the program and install it now?';
+  rsMsgUpdateOpenDiskImage = 'Commander %s has been downloaded, but it can not be installed automatically.'#10'Drag Commander.app from the opened disk image to the Applications folder.';
   rsMsgErrSetAttribute = 'Can not set attributes for "%s"';
   rsMsgErrSetDateTime = 'Can not set date/time for "%s"';
   rsMsgErrSetOwnership = 'Can not set owner/group for "%s"';
@@ -1084,7 +1085,7 @@ resourcestring
   rsMFSTBITerminalTitle = 'Terminal';
   rsMFSTBITerminalTips  = 'Open in Terminal';
   rsMFSTBIPrivilegeTitle = 'Privilege';
-  rsMFSTBIPrivilegeTips = 'As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add "Double Commander.app" to the "Full Disk Access" list to complete the authorization.';
+  rsMFSTBIPrivilegeTips = 'As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add "Commander.app" to the "Full Disk Access" list to complete the authorization.';
   rsMFSTBIPrivilegeTips2 = 'If you can see me, it means DC has not been authorized yet. DC will hide me once it is complete.';
   rsMFSTBIPrivilegeTips3 = 'You must re-authorize every time you install a new version. In this case you need to remove DC from the list first and then add DC back again. Because the new version has different fingerprints, simply enabling the checkboxes will not work.';
 

@@ -32,7 +32,7 @@ uses
 
   procedure ClearClipboard;
   procedure ClipboardSetText(AText: String);
-{$IF DEFINED(MSWINDOWS)}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
   // Total Commander style: file names copied to the clipboard (nil if there is text or no files)
   function ClipboardGetFileNames: TStringList;
 {$ENDIF}
@@ -599,6 +599,16 @@ end;
 procedure ClearClipboard;
 begin
   TDarwinClipboardUtil.clear;
+end;
+
+// Total Commander style: the Finder also puts the file name as text
+// on the pasteboard, so the file names take precedence here
+function ClipboardGetFileNames: TStringList;
+var
+  darwinOp: TDarwinClipboardOperation;
+begin
+  if not TDarwinClipboardUtil.getFiles( darwinOp, Result ) then
+    Result:= nil;
 end;
 {$ENDIF}
 

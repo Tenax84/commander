@@ -11132,7 +11132,7 @@ msgid "network"
 msgstr ""
 
 #: ulng.rsmfstbiprivilegetips
-msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Double Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
+msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
 msgstr ""
 
 #: ulng.rsmfstbiprivilegetips2
@@ -12088,6 +12088,11 @@ msgstr ""
 #: ulng.rsmsgupdatedownloaded
 #, object-pascal-format
 msgid "Commander %s has been downloaded, it will be installed when the program is closed.\nDo you want to restart the program and install it now?"
+msgstr ""
+
+#: ulng.rsmsgupdateopendiskimage
+#, object-pascal-format
+msgid "Commander %s has been downloaded, but it can not be installed automatically.\nDrag Commander.app from the opened disk image to the Applications folder."
 msgstr ""
 
 #: ulng.rsmsgupdateinstalled

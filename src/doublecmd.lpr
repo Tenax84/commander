@@ -104,6 +104,9 @@ uses
   {$IFDEF UNIX}
   , uMyUnix
   {$ENDIF}
+  {$IFDEF DARWIN}
+  , uSelfUpdate
+  {$ENDIF}
   {$IFDEF LclCocoa}
   , uCocoaModernFormConfig
   , CocoaConfig
@@ -247,7 +250,7 @@ begin
 
       frmMain.Show;
       Application.ProcessMessages;
-      {$IFDEF MSWINDOWS}
+      {$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
       // Total Commander style: self-update from GitHub releases
       uSelfUpdate.StartUpdateCheck;
       {$ENDIF}

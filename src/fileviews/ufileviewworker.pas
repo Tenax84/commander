@@ -263,7 +263,7 @@ uses
   uGlobs, uPixMapManager, uFileSourceProperty,
   uFileSourceCalcStatisticsOperation,
   uFileSourceOperationOptions
-  {$IFDEF MSWINDOWS}, uFileSystemFileSource, uNetPathProbe{$ENDIF};
+  {$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}, uFileSystemFileSource, uNetPathProbe{$ENDIF};
 
 {$IFDEF timeFileView}
 procedure filelistPrintTime(const AMessage: String); inline;
@@ -443,7 +443,7 @@ begin
   finally
     FListOperationLock.Release;
   end;
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
   // Total Commander style: interrupt a blocking access to a network path
   if Assigned(Thread) then
     NetCancelThread(Thread);
@@ -476,7 +476,7 @@ begin
     if Aborted then
       Exit;
 
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
     // Total Commander style: the thread may have run an aborted worker before
     if Assigned(Thread) then
       NetCancelReset;

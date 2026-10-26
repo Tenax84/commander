@@ -56,6 +56,8 @@ install/darwin/install.sh "$BUILD_PACK_DIR"
 cp -R "$ROOT/devtools/macos/dmg/." "$BUILD_PACK_DIR/"
 APP="$BUILD_PACK_DIR/Commander.app"
 mv "$BUILD_PACK_DIR/doublecmd.app" "$APP"
+# Commander icon (made from src/doublecmd.ico, CFBundleIconFile is "doublecmd")
+cp -f "$ROOT/devtools/macos/Commander.icns" "$APP/Contents/Resources/doublecmd.icns"
 PLIST="$APP/Contents/Info.plist"
 plutil -replace CFBundleName -string "Commander" "$PLIST"
 plutil -replace CFBundleDisplayName -string "Commander" "$PLIST"

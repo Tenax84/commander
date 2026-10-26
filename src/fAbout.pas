@@ -76,7 +76,7 @@ implementation
 
 uses
   Clipbrd, dmHelpManager, dmCommonData, uDCVersion, uClipboard, uOSForms
-  {$IFDEF MSWINDOWS}, uSelfUpdate{$ENDIF};
+  {$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}, uSelfUpdate{$ENDIF};
 
 const
   cIndention = LineEnding + #32#32;
@@ -171,9 +171,10 @@ begin
   memInfo.CaretPos           := Classes.Point(0, 0);
 
   lblVersion.Caption         := lblVersion.Caption + #32 + dcVersion;
-  {$IFDEF MSWINDOWS}
+  {$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
   // Total Commander style: version of the fork
-  lblVersion.Caption         := lblVersion.Caption + ' (Commander ' + CommanderVersion + ')';
+  if CommanderVersion <> '' then
+    lblVersion.Caption       := lblVersion.Caption + ' (Commander ' + CommanderVersion + ')';
   {$ENDIF}
   lblRevision.Caption        := lblRevision.Caption + #32 + dcRevision;
   lblCommit.Caption          := lblCommit.Caption + #32 + dcCommit;

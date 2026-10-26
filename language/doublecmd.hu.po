@@ -11172,16 +11172,16 @@ msgid "network"
 msgstr "hálózat"
 
 #: ulng.rsmfstbiprivilegetips
-msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Double Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
-msgstr "Fájlkezelőként a Double Commander teljes lemezhozzáférési engedélyt igényel. A gombra kattintva megjelenik a macOS rendszerbeállítások oldal. Adja hozzá a \"Double Commander.app\"-ot a \"Teljes lemezhozzáférés\" listához az engedélyezés befejezéséhez."
+msgid "As a file manager, Double Command requires full disk access permissions. Clicking this button will pop up the macOS system settings page. Please add \"Commander.app\" to the \"Full Disk Access\" list to complete the authorization."
+msgstr "Fájlkezelőként a Commander teljes lemezhozzáférési engedélyt igényel. A gombra kattintva megjelenik a macOS rendszerbeállítások oldal. Adja hozzá a \"Commander.app\"-ot a \"Teljes lemezhozzáférés\" listához az engedélyezés befejezéséhez."
 
 #: ulng.rsmfstbiprivilegetips2
 msgid "If you can see me, it means DC has not been authorized yet. DC will hide me once it is complete."
-msgstr "Ha látsz engem, az azt jelenti, hogy a DC még nem kapott engedélyt. A DC el fog rejteni, amint ez megtörténik."
+msgstr "Ha látsz engem, az azt jelenti, hogy a Commander még nem kapott engedélyt. A Commander el fog rejteni, amint ez megtörténik."
 
 #: ulng.rsmfstbiprivilegetips3
 msgid "You must re-authorize every time you install a new version. In this case you need to remove DC from the list first and then add DC back again. Because the new version has different fingerprints, simply enabling the checkboxes will not work."
-msgstr "Minden új verzió telepítésekor újra el kell végezni az engedélyezést. Ehhez először el kell távolítani a DC-t a listáról, majd újból hozzá kell adnia. Mivel az új verzió ujjlenyomatai eltérőek, a jelölőnégyzetek egyszerű bejelölése nem lesz elegendő."
+msgstr "Minden új verzió telepítésekor újra el kell végezni az engedélyezést. Ehhez először el kell távolítani a Commandert a listáról, majd újból hozzá kell adnia. Mivel az új verzió ujjlenyomatai eltérőek, a jelölőnégyzetek egyszerű bejelölése nem lesz elegendő."
 
 #: ulng.rsmfstbiprivilegetitle
 msgid "Privilege"
@@ -12152,6 +12152,11 @@ msgstr "A frissítést nem sikerült telepíteni:\n%s"
 #, object-pascal-format
 msgid "Commander %s has been downloaded, it will be installed when the program is closed.\nDo you want to restart the program and install it now?"
 msgstr "A Commander %s verziója letöltve, a program bezárásakor települ.\nÚjraindítod most a programot a telepítéshez?"
+
+#: ulng.rsmsgupdateopendiskimage
+#, object-pascal-format
+msgid "Commander %s has been downloaded, but it can not be installed automatically.\nDrag Commander.app from the opened disk image to the Applications folder."
+msgstr "A Commander %s verziója letöltve, de nem telepíthető automatikusan.\nHúzd a Commander.app-ot a megnyitott lemezképből az Alkalmazások mappába."
 
 #: ulng.rsmsgupdateinstalled
 #, object-pascal-format

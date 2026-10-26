@@ -15,7 +15,7 @@ Windowson a beállításokat a program mindkét esetben a saját mappájának `s
 
 A konfigurációs fájlok neve ugyanaz, mint a DC-ben (`doublecmd.xml`, `shortcuts.scf` stb.), így egy meglévő DC-beállítás átmásolható a `settings\` mappába.
 
-**macOS-re** az 1.2.0-nál újabb kiadásoktól lemezkép is van: `Commander-<verzió>-macos-arm64.dmg` (Apple Silicon) és `Commander-<verzió>-macos-x86_64.dmg` (Intel). Nyisd meg a lemezképet, és húzd a `Commander.app`-ot az Alkalmazások mappába. A csomag nincs aláírva, ezért első indításkor a Finderben jobb gombbal kattints rá, és válaszd a Megnyitás parancsot. A macOS-es változatot még nem próbáltuk ki, és az automatikus frissítés sem működik rajta.
+**macOS-re** az 1.2.0-nál újabb kiadásoktól lemezkép is van: `Commander-<verzió>-macos-arm64.dmg` (Apple Silicon) és `Commander-<verzió>-macos-x86_64.dmg` (Intel). Nyisd meg a lemezképet, és húzd a `Commander.app`-ot az Alkalmazások mappába. A csomag nincs az Apple-nél hitelesítve, ezért első indítás előtt futtasd a Terminálban: `xattr -cr /Applications/Commander.app` (enélkül a macOS 15-től a Rendszerbeállítások → Adatvédelem és biztonság → „Megnyitás mindenképp” gombbal lehet elindítani; a régebbi macOS-eken a Finderben jobb gomb → Megnyitás is elég). A fájlkezeléshez érdemes a `Commander.app`-nak teljes lemezhozzáférést adni (Rendszerbeállítások → Adatvédelem és biztonság → Teljes lemezhozzáférés). Az automatikus frissítés macOS-en is működik: a program letölti a gépnek megfelelő lemezképet, és kilépéskor lecseréli a `Commander.app`-ot (ha az nem írható, megnyitja a lemezképet a kézi telepítéshez). A macOS-es változatot még nem próbáltuk ki valódi gépen.
 
 ## Automatikus frissítés
 
@@ -76,7 +76,7 @@ wix extension add -g WixToolset.UI.wixext/5.0.2
 
 1. Írd át a verziószámot (`CommanderVersion`) a `src\platform\win\uselfupdate.pas` fájlban, és írd meg a `CHANGELOG.md` új `## [<verzió>] – <dátum>` szakaszát.
 2. Commitold, és töltsd fel (`git push origin master`).
-3. Indítsd el a **Commander release** GitHub Actions workflow-t (`gh workflow run commander-release.yml --repo Tenax84/commander`, vagy a GitHubon az Actions fülön). Ez lefordítja a programot Windowsra és macOS-re, elkészíti a `Commander-<verzió>-win64.msi` telepítőt, a `Commander-<verzió>-win64.zip` hordozható változatot és a `Commander-<verzió>-macos-arm64.dmg` / `-macos-x86_64.dmg` lemezképet, majd a feltöltött commitra létrehozza a `v<verzió>` GitHub-kiadást. A kiadási megjegyzés a `CHANGELOG.md` azonos verziójú szakasza. A programba épített (Windowsos) frissítő az MSI-t vagy a zipet tölti le.
+3. Indítsd el a **Commander release** GitHub Actions workflow-t (`gh workflow run commander-release.yml --repo Tenax84/commander`, vagy a GitHubon az Actions fülön). Ez lefordítja a programot Windowsra és macOS-re, elkészíti a `Commander-<verzió>-win64.msi` telepítőt, a `Commander-<verzió>-win64.zip` hordozható változatot és a `Commander-<verzió>-macos-arm64.dmg` / `-macos-x86_64.dmg` lemezképet, majd a feltöltött commitra létrehozza a `v<verzió>` GitHub-kiadást. A kiadási megjegyzés a `CHANGELOG.md` azonos verziójú szakasza. A programba épített frissítő Windowson az MSI-t vagy a zipet, macOS-en a gép architektúrájának megfelelő DMG-t tölti le.
 
 Helyben a `devtools\make-release.ps1` ugyanígy elkészíti a Windowsos fájlokat a `dist\` mappába (próbatelepítéshez); `-Publish` kapcsolóval a kiadást is létrehozza, de csak a Windowsos fájlokkal. A macOS-es csomagot a `devtools/macos/build-mac.sh` készíti.
 

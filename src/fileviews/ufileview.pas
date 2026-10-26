@@ -632,7 +632,8 @@ uses
   uDCUtils, uDebug, uLng, uShowMsg, uFileSystemFileSource, uFileSourceUtil,
   uFileViewNotebook, uSearchTemplate, uKeyboard, uFileFunctions,
   fMain, uSearchResultFileSource, uFileSourceProperty, uVfsModule, uFileViewWithPanels,
-  LCLVersion{$IFDEF MSWINDOWS}, uNetPathProbe, uWinNetFileSource{$ENDIF};
+  LCLVersion{$IFDEF MSWINDOWS}, uNetPathProbe, uWinNetFileSource{$ENDIF}
+  {$IFDEF DARWIN}, uNetPathProbe{$ENDIF};
 
 const
   MinimumReloadInterval  = 1000; // 1 second
@@ -986,7 +987,7 @@ begin
       Result := EmptyStr;
     Exit;
   end;
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
   AError := NetPathError(CurrentPath);
 {$ENDIF}
   if (Length(AError) > 0) or (not FPathAvailable) then
@@ -2833,7 +2834,7 @@ begin
         // (removable media, network share): correcting it here would make the
         // corrected path the saved one. Only cache the path availability for
         // the tab marker ('?' on the tab title).
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
         // Total Commander style: check network paths in the background
         FPathAvailable := NetFileSystemEntryExists(FHistory.CurrentPath, True);
 {$ELSE}
@@ -2843,7 +2844,7 @@ begin
       else
       begin
         // Go to upper directory if current doesn't exist
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
         // Total Commander style: do not access network paths here,
         // an unreachable path is shown in the panel
         if IsNetworkPath(FHistory.CurrentPath) then
@@ -3591,7 +3592,7 @@ begin
           Exit;
       end;
 
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
       // Total Commander style: opening an unreachable network directory
       // would freeze the UI, the watch is added when the path is reachable
       FNetWatchPending := not NetPathAvailableNow(CurrentPath);
@@ -3633,7 +3634,7 @@ var
 begin
   OldPathAvailable := FPathAvailable;
   if Assigned(FileSource) and TFileSystemFileSource.ClassNameIs(FileSource.ClassName) then
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
     // Total Commander style: check network paths in the background,
     // the view is updated when the check finishes
     FPathAvailable := NetFileSystemEntryExists(CurrentPath, True)
@@ -3647,7 +3648,7 @@ begin
   // Total Commander style: show or hide the message in the panel
   if FPathAvailable <> OldPathAvailable then
     RedrawFiles;
-{$IFDEF MSWINDOWS}
+{$IF DEFINED(MSWINDOWS) or DEFINED(DARWIN)}
   // Total Commander style: add the deferred watch of a network path
   if FNetWatchPending and FPathAvailable then
     EnableWatcher(True);
