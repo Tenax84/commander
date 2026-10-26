@@ -784,6 +784,10 @@ type
     FRestoredHeight: Integer;
     FDelayedEventCtr: Integer;
     FDelayedWMMove, FDelayedWMSize: Boolean;
+{$IFDEF MSWINDOWS}
+    FEdtCommandWindowProc: TWndMethod;
+    procedure edtCommandWindowProc(var TheMessage: TLMessage);
+{$ENDIF}
 
     procedure DelayedEvent(Data: PtrInt);
 
@@ -1008,7 +1012,7 @@ uses
   fOptionsToolbarBase, fOptionsToolbarMiddle, fEditor, uColumns, StrUtils, uSysFolders,
   uColumnsFileView, dmHigh, uFileSourceOperationMisc, uTCStyle, uWfxPluginFileSource
 {$IFDEF MSWINDOWS}
-  , uShellFileSource, uNetworkThread, uMyWindows, uRestoreFlicker, uNetPathProbe
+  , uShellFileSource, uNetworkThread, uMyWindows, uRestoreFlicker, uNetPathProbe, uFindEx, uClipboard
 {$ENDIF}
 {$IFDEF DARWIN}
   , uCocoaModernFormConfig
@@ -1254,6 +1258,11 @@ begin
 
   HMMainForm := HotMan.Register(Self, HotkeysCategory);
   HotMan.Register(edtCommand, 'Command Line');
+{$IFDEF MSWINDOWS}
+  // Total Commander style: paste the full path of files from the clipboard
+  FEdtCommandWindowProc := edtCommand.WindowProc;
+  edtCommand.WindowProc := @edtCommandWindowProc;
+{$ENDIF}
 
   nbLeft := CreateNotebook(pnlLeft, fpLeft);
   nbRight := CreateNotebook(pnlRight, fpRight);
@@ -6329,6 +6338,39 @@ begin
   CheckCommandLine(GetKeyShiftStateEx, Key);
 end;
 
+{$IFDEF MSWINDOWS}
+procedure TfrmMain.edtCommandWindowProc(var TheMessage: TLMessage);
+var
+  I: Integer;
+  sText: String = '';
+  FileNames: TStringList;
+begin
+  if TheMessage.Msg = LM_PASTE then
+  begin
+    FileNames := ClipboardGetFileNames;
+    if Assigned(FileNames) then
+    try
+      for I := 0 to FileNames.Count - 1 do
+      begin
+        if I > 0 then sText := sText + ' ';
+        sText := sText + QuoteFilenameIfNecessary(FileNames[I]);
+      end;
+      if sText <> '' then
+      begin
+        edtCommand.SelText := sText;
+        edtCommand.SelStart := edtCommand.SelStart + edtCommand.SelLength;
+        edtCommand.SelLength := 0;
+        TheMessage.Result := 1; // prevent calling default window proc
+        Exit;
+      end;
+    finally
+      FileNames.Free;
+    end;
+  end;
+  FEdtCommandWindowProc(TheMessage);
+end;
+{$ENDIF}
+
 procedure TfrmMain.edtCommandExit(Sender: TObject);
 begin
   // Hide command line if it was temporarily shown.
@@ -6522,6 +6564,9 @@ var
   sDir, sParams: String;
   sFilename: String = '';
   Operation: TFileSourceExecuteOperation = nil;
+  {$IFDEF MSWINDOWS}
+  SearchRec: TSearchRecEx;
+  {$ENDIF}
 begin
   Result:= True;
 
@@ -6548,6 +6593,18 @@ begin
           else
             begin
               sDir:= RemoveQuotation(Copy(sCmd, iIndex + 3, Length(sCmd)));
+              {$IFDEF MSWINDOWS}
+              // Total Commander style: resolve relative paths from the active panel,
+              // mbSetCurrentDir does not change the process current directory
+              sDir:= ReplaceTilde(NormalizePathDelimiters(Trim(sDir)));
+              if (sDir <> PathDelim) and (sDir <> '..') then
+              begin
+                if (GetPathType(sDir) <> ptAbsolute) then
+                  sDir:= ActiveFrame.CurrentPath + sDir
+                else if (Length(sDir) > 1) and (sDir[1] = PathDelim) and (sDir[2] <> PathDelim) then
+                  sDir:= ExtractFileDrive(ActiveFrame.CurrentPath) + sDir;
+              end;
+              {$ENDIF}
               sDir:= mbExpandFileName(Trim(sDir));
 
               if (sDir = DirectorySeparator) or (sDir = '..') then
@@ -6567,6 +6624,12 @@ begin
               begin
                 sFilename:= ExtractFileName(sDir);
                 sDir:= ExtractFileDir(sDir);
+                {$IFDEF MSWINDOWS}
+                // Total Commander style: select the file by its real name case
+                if FindFirstEx(sDir + PathDelim + sFilename, 0, SearchRec) = 0 then
+                  sFilename:= SearchRec.Name;
+                FindCloseEx(SearchRec);
+                {$ENDIF}
               end;
             end;
 

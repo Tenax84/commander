@@ -32,6 +32,10 @@ uses
 
   procedure ClearClipboard;
   procedure ClipboardSetText(AText: String);
+{$IF DEFINED(MSWINDOWS)}
+  // Total Commander style: file names copied to the clipboard (nil if there is text or no files)
+  function ClipboardGetFileNames: TStringList;
+{$ENDIF}
 
 const
 
@@ -940,6 +944,23 @@ end;
 procedure ClipboardSetText(AText: String);
 begin
   Clipboard.AsText := AText;
+end;
+
+function ClipboardGetFileNames: TStringList;
+var
+  hGlobalBuffer: HGLOBAL;
+begin
+  Result := nil;
+  if IsClipboardFormatAvailable(CF_UNICODETEXT) or
+     not IsClipboardFormatAvailable(CF_HDROP) then Exit;
+  if OpenClipboard(0) = False then Exit;
+  try
+    hGlobalBuffer := GetClipboardData(CF_HDROP);
+    if hGlobalBuffer <> 0 then
+      Result := uOleDragDrop.TFileDropTarget.GetDropFilenames(hGlobalBuffer);
+  finally
+    CloseClipboard;
+  end;
 end;
 {$ENDIF}
 
