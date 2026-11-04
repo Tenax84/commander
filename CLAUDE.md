@@ -40,6 +40,8 @@ Automatizált tesztek nincsenek. Úgy ellenőrzünk, hogy a programot a Total Co
 
 A kezdőértékekben végzett módosítások csak tiszta konfigurációval látszanak. Ha a `run\settings\` mappában már van mentett `doublecmd.xml`, az felülírja őket, ezért teszteléskor töröld vagy nevezd át.
 
+A DC mentéskor minden beállítást kiír, a kezdőértékeket is, ezért egy kezdőérték megváltoztatása a meglévő felhasználóknál nem érvényesül. Ha ennek mégis érvényesülnie kell, az `src/uglobs.pas` `CommanderConfigVersion` konstansát (a gyökérelem `CommanderConfigVersion` attribútuma) emeld meg, és a betöltésnél `if LoadedCommanderConfigVersion < N then ...` feltétellel egyszer írd felül az értéket (példa: `gInplaceRename`, 1-es verzió). Az upstream `ConfigVersion`-höz ne nyúlj.
+
 ## Saját módosítások (az upstreamhez képest)
 
 A TC-szerű megjelenés nagyrészt **kezdőérték-változtatás**, nem új funkció:

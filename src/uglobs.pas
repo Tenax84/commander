@@ -239,6 +239,9 @@ const
   // 16 -  Move DirectoryHotList to localconfig.xml
   // 17 - Default typing goes to command line; Alt+typing starts quick search.
   ConfigVersion = 17;
+  // Total Commander style: Commander specific config version (attribute CommanderConfigVersion)
+  //  1 - InplaceRename defaults to True (forced once on older configs)
+  CommanderConfigVersion = 1;
 
   COLORS_JSON = 'colors.json';
 
@@ -2716,6 +2719,7 @@ var
   DecimalSeparator: String;
   Root, Node, SubNode: TXmlNode;
   LoadedConfigVersion, iIndexContextMode: Integer;
+  LoadedCommanderConfigVersion: Integer; // Total Commander style
   oldQuickSearch: Boolean = True;
   oldQuickFilter: Boolean = False;
   oldQuickSearchMode: TShiftState = [ssCtrl, ssAlt];
@@ -2729,6 +2733,7 @@ begin
     { Double Commander Version }
     gPreviousVersion:= GetAttr(Root, 'DCVersion', EmptyStr);
     LoadedConfigVersion := GetAttr(Root, 'ConfigVersion', ConfigVersion);
+    LoadedCommanderConfigVersion := GetAttr(Root, 'CommanderConfigVersion', 0); // Total Commander style
 
     { Create config backup }
     if (LoadedConfigVersion < ConfigVersion) then
@@ -3228,6 +3233,8 @@ begin
       gSpaceMovesDown := GetValue(Node, 'SpaceMovesDown', gSpaceMovesDown);
       gDirBrackets := GetValue(Node, 'DirBrackets', gDirBrackets);
       gInplaceRename := GetValue(Node, 'InplaceRename', gInplaceRename);
+      // Total Commander style: older configs saved the upstream default (False)
+      if LoadedCommanderConfigVersion < 1 then gInplaceRename := True;
       gInplaceRenameButton := GetValue(Node, 'InplaceRenameButton', gInplaceRenameButton);
       gDblClickToParent := GetValue(Node, 'DblClickToParent', gDblClickToParent);
       gDblClickEditPath := GetValue(Node, 'DoubleClickEditPath', gDblClickEditPath);
@@ -3559,6 +3566,7 @@ begin
 
     SetAttr(Root, 'DCVersion', dcVersion);
     SetAttr(Root, 'ConfigVersion', ConfigVersion);
+    SetAttr(Root, 'CommanderConfigVersion', CommanderConfigVersion); // Total Commander style
 
     { Language page }
     SetValue(Root, 'Language/POFileName', gPOFileName);
