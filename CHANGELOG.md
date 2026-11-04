@@ -2,6 +2,17 @@
 
 A Commander kiadásainak változásai. A verziószám a Commanderé, nem a Double Commanderé; a kiadások a [GitHub Releases](https://github.com/Tenax84/commander/releases) oldalon érhetők el.
 
+## [1.3.2] – 2026-11-04
+
+### Új
+
+- **Átnevezés kattintással:** a már kijelölt (kurzor alatti) fájl nevére még egyszer kattintva a név szerkeszthetővé válik, mint a Total Commanderben. A késleltetés a Windows dupla kattintási ideje, így a dupla kattintás továbbra is megnyitja a fájlt.
+- **Keresés és szűrés váltása:** a gyorskereső mezőjében a Ctrl+S a keresés és a szűrés között vált. A program megjegyzi a választott módot, és a következő Alt+betűs gyorskeresés is ebben indul.
+
+### Javítva
+
+- Ha a két panel ugyanazt a meghajtót vagy hálózati megosztást mutatja, egy fájlművelet után a szabad hely mindkét panelen frissül, nem csak azon, ahol a változás történt.
+
 ## [1.3.1] – 2026-10-26
 
 ### Javítva
@@ -70,6 +81,7 @@ A Commander első kiadása: a Double Commander 1.3.0 alpha (fejlesztői ág) Win
 - Nincs fekete villanás minimalizált állapotból visszaállításkor.
 - Automatikus frissítés: induláskor a program megnézi, van-e újabb kiadás a GitHubon, és kérésre telepíti.
 
+[1.3.2]: https://github.com/Tenax84/commander/releases/tag/v1.3.2
 [1.3.1]: https://github.com/Tenax84/commander/releases/tag/v1.3.1
 [1.3.0]: https://github.com/Tenax84/commander/releases/tag/v1.3.0
 [1.2.0]: https://github.com/Tenax84/commander/releases/tag/v1.2.0

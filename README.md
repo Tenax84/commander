@@ -46,6 +46,8 @@ A frissítő a `settings\` mappához nem nyúl.
 ### Kezelés
 
 - **Gépelés:** a sima gépelés a parancssorba kerül, az Alt+betű gyorskeresést indít, mint a TC-ben. A Ctrl+E az előző parancsot hívja elő. A parancssori `cd` a relatív útvonalat (`alma\korte`, `..\x`) az aktív panel mappájához képest értelmezi; ha a célpont fájl, a program a mappájába lép, és kijelöli a fájlt. Ha a vágólapon fájl van, a parancssorba beillesztve (Ctrl+V, Shift+Insert) a fájl teljes útvonala kerül.
+- **Átnevezés kattintással:** a már kijelölt fájl nevére kattintva a név szerkeszthetővé válik (lassú dupla kattintás), mint a TC-ben.
+- **Gyorskeresés és szűrés:** a gyorskereső mezőjében a Ctrl+S a keresés és a szűrés között vált; a program megjegyzi a választott módot.
 - **Alt+F4:** kilépés a programból.
 - **Fájlműveleti hibák:** alapértelmezés szerint a program átugorja a hibás fájlt, és a művelet folytatódik.
 - **Mappák rögzítése a meghajtósoron:** ha egy mappát a fájlpanelről vagy más programból a meghajtósorra húzol, a meghajtók után gombot kap (a két panel meghajtósora közös). A gombok húzással áthelyezhetők; ha egyet lehúzol a meghajtósorról, eltűnik. Az FTP-kapcsolatok (Hálózat → FTP) és a kapcsolatokon belüli mappák is rögzíthetők így; a gombra kattintva a program megnyitja a kapcsolatot.
@@ -76,7 +78,7 @@ wix extension add -g WixToolset.UI.wixext/5.0.2
 
 1. Írd át a verziószámot (`CommanderVersion`) a `src\platform\win\uselfupdate.pas` fájlban, és írd meg a `CHANGELOG.md` új `## [<verzió>] – <dátum>` szakaszát.
 2. Commitold, és töltsd fel (`git push origin master`).
-3. Indítsd el a **Commander release** GitHub Actions workflow-t (`gh workflow run commander-release.yml --repo Tenax84/commander`, vagy a GitHubon az Actions fülön). Ez lefordítja a programot Windowsra és macOS-re, elkészíti a `Commander-<verzió>-win64.msi` telepítőt, a `Commander-<verzió>-win64.zip` hordozható változatot és a `Commander-<verzió>-macos-arm64.dmg` / `-macos-x86_64.dmg` lemezképet, majd a feltöltött commitra létrehozza a `v<verzió>` GitHub-kiadást. A kiadási megjegyzés a `CHANGELOG.md` azonos verziójú szakasza. A programba épített frissítő Windowson az MSI-t vagy a zipet, macOS-en a gép architektúrájának megfelelő DMG-t tölti le.
+3. A push magától elindítja a **Commander release** GitHub Actions workflow-t (kézzel: `gh workflow run commander-release.yml --repo Tenax84/commander`, vagy a GitHubon az Actions fülön). Ez lefordítja a programot Windowsra és macOS-re, elkészíti a `Commander-<verzió>-win64.msi` telepítőt, a `Commander-<verzió>-win64.zip` hordozható változatot és a `Commander-<verzió>-macos-arm64.dmg` / `-macos-x86_64.dmg` lemezképet, majd a feltöltött commitra létrehozza a `v<verzió>` GitHub-kiadást. Ha ez a verzió már ki van adva, csak a `snapshot` fejlesztői változatot (prerelease) frissíti, amit a frissítő nem ajánl fel; ezért a verzióemelést és a CHANGELOG-szakaszt egy pushban kell feltölteni. A kiadási megjegyzés a `CHANGELOG.md` azonos verziójú szakasza. A programba épített frissítő Windowson az MSI-t vagy a zipet, macOS-en a gép architektúrájának megfelelő DMG-t tölti le.
 
 Helyben a `devtools\make-release.ps1` ugyanígy elkészíti a Windowsos fájlokat a `dist\` mappába (próbatelepítéshez); `-Publish` kapcsolóval a kiadást is létrehozza, de csak a Windowsos fájlokkal. A macOS-es csomagot a `devtools/macos/build-mac.sh` készíti.
 
