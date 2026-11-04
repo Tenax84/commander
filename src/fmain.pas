@@ -5290,6 +5290,11 @@ end;
 procedure TfrmMain.FileViewFilesChanged(FileView: TFileView);
 var
   Page: TFileViewPage;
+{$IFDEF MSWINDOWS}
+  OtherSide: TFilePanelSelect;
+  OtherView: TFileView;
+  ADrive: String;
+{$ENDIF}
 begin
   if FileView.NotebookPage is TFileViewPage then
     begin
@@ -5298,6 +5303,27 @@ begin
       if Page.IsActive then
       begin
         UpdateFreeSpace(Page.Notebook.Side, False);
+{$IFDEF MSWINDOWS}
+        // Total Commander style: refresh the free space of the other panel
+        // too when it shows the same drive
+        if Page.Notebook.Side = fpLeft then
+        begin
+          OtherSide := fpRight;
+          OtherView := FrameRight;
+        end
+        else begin
+          OtherSide := fpLeft;
+          OtherView := FrameLeft;
+        end;
+        ADrive := ExtractFileDrive(FileView.CurrentPath);
+        if (Length(ADrive) > 0) and Assigned(OtherView) and
+           FileView.FileSource.IsClass(TFileSystemFileSource) and
+           OtherView.FileSource.IsClass(TFileSystemFileSource) and
+           mbCompareFileNames(ADrive, ExtractFileDrive(OtherView.CurrentPath)) then
+        begin
+          UpdateFreeSpace(OtherSide, False);
+        end;
+{$ENDIF}
       end;
     end;
 end;

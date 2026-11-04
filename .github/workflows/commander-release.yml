@@ -1,15 +1,26 @@
 # Commander release: Windows installer (MSI) + portable zip, macOS disk images (Apple Silicon
-# and Intel), then the v<version> GitHub release with all of them.
+# and Intel), then a GitHub release with all of them.
 # The version comes from CommanderVersion in src/platform/win/uselfupdate.pas, the release
 # notes from the matching "## [<version>]" section of CHANGELOG.md.
-# Start: gh workflow run commander-release.yml --repo Tenax84/commander [-f publish=false]
+# Runs on every push to master:
+#  - if there is no v<version> release yet, it creates it (the self-updater offers it);
+#  - otherwise it replaces the rolling "snapshot" prerelease (the self-updater ignores
+#    prereleases, it only looks at releases/latest).
+# Manual start: gh workflow run commander-release.yml --repo Tenax84/commander [-f publish=false]
 name: Commander release
 
 on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**.md'
+      - '.claude/**'
+      - '.vscode/**'
+      - 'screenshots/**'
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Create the GitHub release (otherwise only the build artifacts)'
+        description: 'Create the GitHub release or snapshot (otherwise only the build artifacts)'
         type: boolean
         default: true
 
@@ -25,24 +36,31 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.ver.outputs.version }}
+      kind: ${{ steps.ver.outputs.kind }}
     steps:
     - name: Checkout source
       uses: actions/checkout@v7
 
+    # kind: release (new version), snapshot (version already released) or none (publish=false)
     - name: Read and check the version
       id: ver
       run: |
            VER=$(grep -o "CommanderVersion = '[^']*'" src/platform/win/uselfupdate.pas | cut -d"'" -f2)
            [ -n "$VER" ] || { echo "::error::CommanderVersion not found"; exit 1; }
            grep -q "^## \[$VER\]" CHANGELOG.md || { echo "::error::CHANGELOG.md has no '## [$VER]' section"; exit 1; }
-           if [ "$PUBLISH" = "true" ] && gh release view "v$VER" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-             echo "::error::Release v$VER already exists"; exit 1
+           if [ "$PUBLISH" = "false" ]; then
+             KIND=none
+           elif gh release view "v$VER" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+             KIND=snapshot
+           else
+             KIND=release
            fi
-           echo "Commander $VER"
+           echo "Commander $VER: $KIND"
            echo "version=$VER" >> "$GITHUB_OUTPUT"
+           echo "kind=$KIND" >> "$GITHUB_OUTPUT"
       env:
         GH_TOKEN: ${{ github.token }}
-        PUBLISH: ${{ inputs.publish }}
+        PUBLISH: ${{ github.event_name == 'push' || inputs.publish }}
 
   build-win:
     needs: version
@@ -151,7 +169,7 @@ jobs:
 
   publish:
     needs: [version, build-win, build-mac]
-    if: inputs.publish
+    if: needs.version.outputs.kind != 'none'
     runs-on: ubuntu-latest
     steps:
     - name: Download artifacts
@@ -163,6 +181,7 @@ jobs:
     # The release is created only now, with all assets at once: the self-updater of the
     # installed programs looks at the latest release and needs its .msi and .zip
     - name: Create the GitHub release
+      if: needs.version.outputs.kind == 'release'
       run: |
            ls -l dist
            gh release create "v$VER" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
@@ -171,3 +190,33 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
         VER: ${{ needs.version.outputs.version }}
+
+    # Rolling development build of the pushed commit. It is a prerelease, so the
+    # self-updater (releases/latest) never offers it.
+    - name: Replace the snapshot prerelease
+      if: needs.version.outputs.kind == 'snapshot'
+      run: |
+           ls -l dist
+           SHORT=${GITHUB_SHA::7}
+           {
+             echo "Fejlesztői változat a \`$SHORT\` commitról ($(date -u '+%Y-%m-%d %H:%M') UTC)."
+             echo
+             echo "Nem stabil kiadás, az önfrissítő nem ajánlja fel. A legutóbbi stabil változat: v$VER."
+             if [ -n "$COMMIT_MSG" ]; then
+               echo
+               echo "Utolsó commit:"
+               echo
+               echo '```'
+               echo "$COMMIT_MSG"
+               echo '```'
+             fi
+           } > dist/snapshot-notes.md
+           gh release delete snapshot --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes 2>/dev/null || true
+           gh release create snapshot --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+             --prerelease --latest=false \
+             --title "Commander $VER snapshot ($SHORT)" --notes-file dist/snapshot-notes.md \
+             dist/Commander-$VER-win64.msi dist/Commander-$VER-win64.zip dist/Commander-$VER-macos-*.dmg
+      env:
+        GH_TOKEN: ${{ github.token }}
+        VER: ${{ needs.version.outputs.version }}
+        COMMIT_MSG: ${{ github.event.head_commit.message }}

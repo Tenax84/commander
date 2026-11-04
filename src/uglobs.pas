@@ -572,6 +572,7 @@ var
   gQuickSearchOptions: TQuickSearchOptions;
   gQuickFilterAutoHide: Boolean;
   gQuickFilterSaveSessionModifications: Boolean;
+  gQuickSearchFilterMode: Boolean; // Total Commander style: Ctrl+S toggles quick search/filter, remembered
 
   { Misc page }
   gGridVertLine,
@@ -2178,6 +2179,7 @@ begin
   gQuickSearchOptions.SearchCase := qscInsensitive;
   gQuickFilterAutoHide := True;
   gQuickFilterSaveSessionModifications := False; //Legacy...
+  gQuickSearchFilterMode := False; // Total Commander style
 
   { Miscellaneous page }
   gGridVertLine := False;
@@ -2186,7 +2188,7 @@ begin
   gShowWarningMessages := True;
   gSpaceMovesDown := False;
   gDirBrackets := True;
-  gInplaceRename := False;
+  gInplaceRename := True; // Total Commander style: slow double click renames
   gInplaceRenameButton := True;
   gDblClickToParent := False;
   gDblClickEditPath := False;
@@ -3213,6 +3215,7 @@ begin
       end;
       gQuickFilterAutoHide := GetValue(Node, 'AutoHide', gQuickFilterAutoHide);
       gQuickFilterSaveSessionModifications := GetValue(Node, 'SaveSessionModifications', gQuickFilterSaveSessionModifications);
+      gQuickSearchFilterMode := GetValue(Node, 'FilterMode', gQuickSearchFilterMode); // Total Commander style
     end;
 
     { Miscellaneous page }
@@ -3854,6 +3857,7 @@ begin
     Node := FindNode(Root, 'QuickFilter', True);
     SetValue(Node, 'AutoHide', gQuickFilterAutoHide);
     SetValue(Node, 'SaveSessionModifications', gQuickFilterSaveSessionModifications);
+    SetValue(Node, 'FilterMode', gQuickSearchFilterMode); // Total Commander style
 
     { Misc page }
     Node := FindNode(Root, 'Miscellaneous', True);

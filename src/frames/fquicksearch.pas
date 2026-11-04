@@ -256,6 +256,26 @@ end;
 
 procedure TfrmQuickSearch.Execute(SearchMode: TQuickSearchMode; const Params: array of String; Char: TUTF8Char = #0);
 begin
+  // Total Commander style: plain quick search (cm_QuickSearch, e.g. Ctrl+S) toggles
+  // between search and filter while the search box is in use, and the chosen mode
+  // is remembered for the next quick search.
+  if (SearchMode = qsSearch) and (Length(Params) = 0) then
+  begin
+    if (Char = #0) and Self.Active and Self.Visible and edtSearch.Focused then
+    begin
+      gQuickSearchFilterMode := not tglFilter.Checked;
+      BeginUpdate;
+      try
+        tglFilter.Checked := gQuickSearchFilterMode;
+      finally
+        EndUpdate;
+      end;
+      Exit;
+    end;
+    if gQuickSearchFilterMode then
+      SearchMode := qsFilter;
+  end;
+
   Self.Visible := True;
 
   if not edtSearch.Focused then

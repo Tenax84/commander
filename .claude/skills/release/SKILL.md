@@ -86,13 +86,14 @@ Ellenőrzés a közzététel előtt:
 
 Majd a közzététel a GitHub Actions workflow-val (`.github/workflows/commander-release.yml`). Ez a feltöltött `master` HEAD-jét fordítja: Windowson Lazarus 4.8-cal a `make-release.ps1 -WithMac`-et futtatja (MSI + zip), macOS-en a `devtools/macos/build-mac.sh`-val két DMG-t készít (`Commander-<verzió>-macos-arm64.dmg`, `-macos-x86_64.dmg`). A kiadást csak a végén, mind a négy fájllal egyszerre hozza létre, így a frissítő soha nem lát fél kiadást. Kb. 20–25 perc, a macOS-es job a hosszabb.
 
+**A workflow minden `master`-re történő pushkor magától elindul** (az 5. lépés pushja is elindítja), ezért ne indítsd kézzel is, mert akkor kétszer futna. Ha a `v<verzió>` kiadás még nem létezik, létrehozza; ha már létezik, a `snapshot` taggel jelölt, folyamatosan cserélt prerelease-t (fejlesztői változat) frissíti, amit az önfrissítő nem ajánl fel. A csak `.md`, `.claude/`, `.vscode/` vagy `screenshots/` módosítást tartalmazó push nem indítja el.
+
 ```bash
-gh workflow run commander-release.yml --repo Tenax84/commander --ref master
-sleep 5; RUN=$(gh run list --repo Tenax84/commander --workflow commander-release.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+sleep 10; RUN=$(gh run list --repo Tenax84/commander --workflow commander-release.yml --branch master --limit 1 --json databaseId --jq '.[0].databaseId')
 gh run watch $RUN --repo Tenax84/commander --exit-status
 ```
 
-A `gh run watch` sokáig fut: az AI Center háttér-helperével indítsd. Ha a workflow elbukik: `gh run view $RUN --repo Tenax84/commander --log-failed`. Próbafuttatás közzététel nélkül: `-f publish=false` (az eredmény a run artifactjai között lesz). A `version` job leáll, ha a `CHANGELOG.md`-ből hiányzik a szakasz, vagy ha a `v<verzió>` kiadás már létezik.
+A `gh run watch` sokáig fut: az AI Center háttér-helperével indítsd. Ha a workflow elbukik: `gh run view $RUN --repo Tenax84/commander --log-failed`. Kézi indítás (pl. újrapróbálkozás): `gh workflow run commander-release.yml --repo Tenax84/commander --ref master`; próbafuttatás közzététel nélkül: `-f publish=false` (az eredmény a run artifactjai között lesz). A `version` job leáll, ha a `CHANGELOG.md`-ből hiányzik a szakasz. Ezért **a verzióemelést és a CHANGELOG-szakaszt ugyanabban a pushban** töltsd fel; ha a `CommanderVersion` CHANGELOG-szakasz nélkül kerül fel, a futás elbukik.
 
 Tartalék, ha a CI nem használható: `devtools\make-release.ps1 -Publish -NoBuild` helyben, csak a Windowsos fájlokkal hozza létre a kiadást.
 

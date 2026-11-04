@@ -247,6 +247,11 @@ uses
   uArchiveFileSourceUtil, uFormCommands, uKeyboard, uFileSourceSetFilePropertyOperation,
   uFileSystemWatcher;
 
+{$IFDEF MSWINDOWS}
+// Total Commander style: rename on click uses the system double click time
+function GetDoubleClickTime: Cardinal; stdcall; external 'user32.dll';
+{$ENDIF}
+
 type
   TControlHandlersHack = class(TWinControl)
   end;
@@ -549,7 +554,12 @@ begin
 
   tmRenameFile := TTimer.Create(Self);
   tmRenameFile.Enabled  := False;
+{$IFDEF MSWINDOWS}
+  // Total Commander style: start rename after the system double click time
+  tmRenameFile.Interval := GetDoubleClickTime;
+{$ELSE}
   tmRenameFile.Interval := 1000;
+{$ENDIF}
   tmRenameFile.OnTimer  := @tmRenameFileTimer;
   FRenameFileIndex := -1;
 end;
