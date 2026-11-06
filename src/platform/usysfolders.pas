@@ -71,12 +71,14 @@ uses
 {$ENDIF}
   ;
 
-{$IF DEFINED(DARWIN)}
+{$IF DEFINED(DARWIN) or DEFINED(MSWINDOWS)}
 // Total Commander style: own folder names, so the settings of a Double
 // Commander installed beside it (which uses ApplicationName) are not shared
 const
   AppFolderName = 'Commander';
+{$ENDIF}
 
+{$IF DEFINED(DARWIN)}
 function GetSpecifiedFolderPath(Folder: NSSearchPathDirectory): String;
 begin
   Result:= TDarwinFileUtil.getSpecifiedFolderPath(Folder);
@@ -130,7 +132,7 @@ begin
       Result := EmptyStr;
   end;
   if Result <> '' then
-    Result := Result + DirectorySeparator + ApplicationName;
+    Result := Result + DirectorySeparator + AppFolderName; // Total Commander style
 end;
 {$ELSEIF DEFINED(DARWIN)}
 begin
@@ -162,7 +164,7 @@ var
   APath: array[0..MAX_PATH] of WideChar;
 begin
   if SHGetSpecialFolderPathW(0, APath, CSIDL_LOCAL_APPDATA, True) then
-    Result:= UTF16ToUTF8(UnicodeString(APath)) + DirectorySeparator + ApplicationName
+    Result:= UTF16ToUTF8(UnicodeString(APath)) + DirectorySeparator + AppFolderName // Total Commander style
   else
     Result:= GetAppConfigDir;
 end;
