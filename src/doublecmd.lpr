@@ -270,4 +270,9 @@ begin
   end;
   uKeyboard.CleanupKeyboard;
   DCDebug('Finished Double Commander');
+  // Total Commander style: the widgetset is freed during finalization, but it
+  // does not reset WakeMainThread. A background thread that still logs (e.g.
+  // the elevation RPC client thread when its pipe breaks on exit) would call
+  // TThread.Queue -> WakeMainThread on a freed object -> access violation.
+  WakeMainThread:= nil;
 end.
