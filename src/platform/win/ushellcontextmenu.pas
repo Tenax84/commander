@@ -56,6 +56,7 @@ type
   private
     FOnClose: TNotifyEvent;
     FParent: HWND;
+    FParentControl: TWinControl;
     FFiles: TFiles;
     FBackground: boolean;
     FShellMenu1: IContextMenu;
@@ -82,7 +83,7 @@ uses
   uShellExecute, fMain, uDCUtils, uFormCommands, DCOSUtils, uOSUtils, uShowMsg,
   uExts, uFileSystemFileSource, DCConvertEncoding, LazUTF8, uOSForms, uGraphics,
   Forms, DCWindows, DCStrUtils, Clipbrd, uFileSystemWatcher, uShellFolder,
-  uOleDragDrop, uGdiPlus;
+  uOleDragDrop, uGdiPlus, JwaWinNetWk, uFileView, uFileSourceUtil;
 
 const
   USER_CMD_ID = $1000;
@@ -117,6 +118,22 @@ begin
     else
       Result := CallWindowProc(OldWProc, hWnd, uiMsg, wParam, lParam);
   end; // case
+end;
+
+// Total Commander style: remote name ("\\server\share") of a mapped network drive
+function GetDriveRemoteName(const Path: String): String;
+var
+  dwResult: DWORD;
+  RemoteLength: DWORD;
+  RemoteName: array[0..MAX_PATH] of WideChar;
+begin
+  Result:= EmptyStr;
+  if (Length(Path) < 2) or (Path[2] <> ':') then Exit;
+  RemoteLength:= Length(RemoteName);
+  dwResult:= WNetGetConnectionW(PWideChar(UnicodeString(Copy(Path, 1, 2))), RemoteName, RemoteLength);
+  // A disconnected drive still has its remote name
+  if (dwResult = NO_ERROR) or (dwResult = ERROR_CONNECTION_UNAVAIL) then
+    Result:= UTF16ToUTF8(UnicodeString(PWideChar(RemoteName)));
 end;
 
 function GetDriveContextMenu(Handle: HWND; Files: TFiles): IContextMenu;
@@ -606,6 +623,7 @@ var
   UFlags: UINT = CMF_EXPLORE;
 begin
   FParent:= GetControlHandle(Parent);
+  FParentControl:= Parent;
   // Replace window procedure
 {$PUSH}{$HINTS OFF}
   OldWProc := WNDPROC(SetWindowLongPtrW(FParent, GWL_WNDPROC, LONG_PTR(@MyWndProc)));
@@ -695,6 +713,8 @@ var
   InnerExtActionList: TExtActionList = nil;
   UserSelectedCommand: TExtActionCommand = nil;
   sVolumeLabel: string;
+  sRemoteName: string = '';
+  ChangeDirView: TFileView;
 begin
   try
     try
@@ -798,6 +818,19 @@ begin
                   iCmd:= InnerExtActionList.Add(TExtActionCommand.Create(MenuItem.Caption, sVerb, '', ''));
                   InsertMenuItemEx(FShellMenu, 0, PWideChar(CeUtf8ToUtf16(MenuItem.Caption)), I + J, iCmd + USER_CMD_ID, MFT_STRING);
                 end;
+              end;
+            end;
+
+            // Total Commander style: "cd \\server\share" for a mapped network drive
+            if (not FBackground) and (FUserWishForContextMenu = uwcmComplete) and
+               (FFiles.Count = 1) and (aFile.Attributes and FILE_ATTRIBUTE_DEVICE <> 0) then
+            begin
+              sRemoteName:= GetDriveRemoteName(aFile.FullPath);
+              if sRemoteName <> EmptyStr then
+              begin
+                iCmd:= InnerExtActionList.Add(TExtActionCommand.Create('cd ' + sRemoteName, 'cm_ChangeDir', sRemoteName, ''));
+                InsertMenuItemEx(FShellMenu, 0, nil, 0, 0, MFT_SEPARATOR);
+                InsertMenuItemEx(FShellMenu, 0, PWideChar(CeUtf8ToUtf16('cd ' + StringReplace(sRemoteName, '&', '&&', [rfReplaceAll]))), 0, iCmd + USER_CMD_ID, MFT_STRING);
               end;
             end;
           end;
@@ -934,7 +967,21 @@ begin
         if (cmd - USER_CMD_ID) < InnerExtActionList.Count then
           UserSelectedCommand := InnerExtActionList.ExtActionCommand[cmd - USER_CMD_ID].CloneExtAction;
 
-        if FBackground then
+        // Total Commander style: change to the remote path of the network drive
+        // in the panel the drive button belongs to
+        if (sRemoteName <> EmptyStr) and Assigned(UserSelectedCommand) and
+           SameText(UserSelectedCommand.CommandName, 'cm_ChangeDir') then
+        begin
+          if FParentControl = frmMain.dskLeft then
+            ChangeDirView := frmMain.FrameLeft
+          else if (FParentControl = frmMain.dskRight) and gDriveBar2 then
+            ChangeDirView := frmMain.FrameRight
+          else
+            ChangeDirView := frmMain.ActiveFrame;
+          ChooseFileSource(ChangeDirView, UserSelectedCommand.Params);
+          bHandled := True;
+        end
+        else if FBackground then
         begin
           if SameText(UserSelectedCommand.CommandName, 'cm_PasteFromClipboard') then
             TShellThread.Create(FParent, FShellMenu1, sCmdVerbPaste).Start
