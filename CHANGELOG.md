@@ -2,6 +2,21 @@
 
 A Commander kiadásainak változásai. A verziószám a Commanderé, nem a Double Commanderé; a kiadások a [GitHub Releases](https://github.com/Tenax84/commander/releases) oldalon érhetők el.
 
+## [1.4.0] – 2026-11-18
+
+### Új
+
+- **`cd \\szerver\megosztás` a hálózati meghajtó helyi menüjében:** ha egy leképezett hálózati meghajtó gombján jobb gombbal kattintasz, a helyi menü tetején a `cd \\szerver\megosztás` elem jelenik meg, mint a Total Commanderben (bontott kapcsolatnál is). A megosztást abban a panelben nyitja meg, amelyikhez a meghajtósor tartozik.
+
+### Változott
+
+- Windowson, ha a program nem hordozható módban fut, a beállításait a `%APPDATA%\Commander` mappában tárolja (a gyorsítótárat és az adatokat a `%LOCALAPPDATA%\Commander`-ben), így egy mellette telepített Double Commander beállításaival nem keverednek. A telepítővel vagy a zipből telepített program továbbra is a saját `settings\` mappáját használja.
+
+### Javítva
+
+- **A lista nem ugrik vissza háttérfrissítéskor:** ha egérgörgővel lejjebb görgetsz egy mappában (pl. a Temp-ben), és a lista közben a háttérben frissül, a nézet a helyén marad, nem ugrik vissza a kurzorhoz. Billentyűnyomásra a nézet a kurzorhoz ugrik.
+- Kilépéskor ritkán előforduló hozzáférési hiba (access violation) javítva.
+
 ## [1.3.3] – 2026-11-04
 
 ### Javítva
@@ -88,6 +103,7 @@ A Commander első kiadása: a Double Commander 1.3.0 alpha (fejlesztői ág) Win
 - Nincs fekete villanás minimalizált állapotból visszaállításkor.
 - Automatikus frissítés: induláskor a program megnézi, van-e újabb kiadás a GitHubon, és kérésre telepíti.
 
+[1.4.0]: https://github.com/Tenax84/commander/releases/tag/v1.4.0
 [1.3.3]: https://github.com/Tenax84/commander/releases/tag/v1.3.3
 [1.3.2]: https://github.com/Tenax84/commander/releases/tag/v1.3.2
 [1.3.1]: https://github.com/Tenax84/commander/releases/tag/v1.3.1
