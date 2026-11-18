@@ -29,6 +29,11 @@ echo "Commander $VER ($REVISION), $CPU_TARGET"
 # Build components, plugins and the program
 ./build.sh components
 ./build.sh plugins
+# The version resource of the program is the Commander version (see build-dc.ps1)
+VER="$VER" perl -0pi -e 'my ($a, $b, $c) = split /\./, $ENV{VER};
+  s/^[ \t]*<(MajorVersionNr|MinorVersionNr|RevisionNr|BuildNr) [^\r\n]*\r?\n//mg;
+  s{(<UseVersionInfo Value="True"/>(\r?\n))}{qq{$1      <MajorVersionNr Value="$a"/>$2      <MinorVersionNr Value="$b"/>$2} .
+    ($c ? qq{      <RevisionNr Value="$c"/>$2} : "")}e' src/doublecmd.lpi
 lazbuild src/doublecmd.lpi --bm=release --widgetset=$lcl --cpu=$CPU_TARGET
 
 # The project target is "Commander" (the Windows exe name); the bundle and

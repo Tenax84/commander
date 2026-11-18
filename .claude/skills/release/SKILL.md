@@ -31,7 +31,7 @@ grep -n "CommanderVersion = " src/platform/win/uselfupdate.pas
 
 Szemantikus verzió: új funkció → minor (`1.1.0` → `1.2.0`), csak javítás → patch (`1.2.0` → `1.2.1`), nagy, nem kompatibilis változás → major. Ha nem egyértelmű, javasolj egyet, és kérdezz rá.
 
-Írd át a `CommanderVersion` konstanst a `src/platform/win/uselfupdate.pas`-ban (a fájl CRLF sorvégű, ezt őrizd meg).
+Írd át a `CommanderVersion` konstanst a `src/platform/win/uselfupdate.pas`-ban (a fájl CRLF sorvégű, ezt őrizd meg). A `src/doublecmd.lpi` `VersionInfo` szakaszát (`MajorVersionNr`, `MinorVersionNr`, `RevisionNr`) a `build-dc.ps1` a fordításkor ehhez igazítja; ezt a módosítást is commitold a verzióemeléssel együtt.
 
 ## 3. CHANGELOG.md
 

@@ -83,7 +83,8 @@ begin
       WriteLn(f, '--------------- ',
                  FormatDateTime('dd-mm-yyyy, hh:nn:ss', SysUtils.Now),
                  ' ---------------');
-      WriteLn(f, '| DC v', dcVersion, ' Rev. ', dcRevision,
+      // Total Commander style: program name
+      WriteLn(f, '| Commander v', dcVersion, ' Rev. ', dcRevision,
                  ' -- ', TargetCPU + '-' + TargetOS + '-' + TargetWS);
       WriteLn(f, '| Free Pascal ', fpcVersion, ', Lazarus ', dcLazVersion);
       if WSVersion <> EmptyStr then

@@ -36,8 +36,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="1"/>
-      <MinorVersionNr Value="3"/>
-      <Attributes pvaPreRelease="True" pvaPrivateBuild="True"/>
+      <MinorVersionNr Value="4"/>
       <StringTable FileDescription="Commander" InternalName="DOUBLECMD" LegalCopyright="Copyright (C) 2006-2026 Alexander Koblov" ProductName="Commander"/>
     </VersionInfo>
     <BuildModes Count="5">

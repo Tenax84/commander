@@ -1147,7 +1147,6 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 
   function GenerateTitle(): String;
   var
-    R: Integer;
     ARevision, AServerName: String;
   begin
     if Length(UniqueInstance.ServernameByUser) > 0 then
@@ -1156,11 +1155,9 @@ procedure TfrmMain.FormCreate(Sender: TObject);
       AServerName := EmptyStr;
     end;
 
-    if TryStrToInt(dcRevision, R) then
-      ARevision:= '~' + dcRevision
-    else begin
-      ARevision:= EmptyStr;
-    end;
+    // Total Commander style: only the Commander version (the exe version resource),
+    // without the Double Commander revision number
+    ARevision:= EmptyStr;
 
     Result := Format('%s%s %s%s',
         ['Commander',

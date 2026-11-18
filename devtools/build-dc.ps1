@@ -44,6 +44,18 @@ if ($Mode -in 'plugins','all') {
   foreach ($p in $plugins.Values) { Laz "plugins\$p" }
 }
 if ($Mode -in 'doublecmd','all') {
+  # Total Commander style: the exe version resource (shown in the title bar, About, file
+  # properties) is the Commander version, kept in sync with CommanderVersion
+  $m = Select-String -Path src\platform\win\uselfupdate.pas -Pattern "CommanderVersion = '(\d+)\.(\d+)\.(\d+)'"
+  if (-not $m) { throw 'A CommanderVersion nem található.' }
+  $v = $m.Matches[0].Groups
+  $nr = '$1      <MajorVersionNr Value="' + $v[1] + '"/>$2      <MinorVersionNr Value="' + $v[2] + '"/>$2'
+  if ($v[3].Value -ne '0') { $nr += '      <RevisionNr Value="' + $v[3] + '"/>$2' }
+  $lpi = Join-Path $src 'src\doublecmd.lpi'
+  $old = [IO.File]::ReadAllText($lpi)
+  $new = [regex]::Replace($old, '(?m)^[ \t]*<(MajorVersionNr|MinorVersionNr|RevisionNr|BuildNr) [^\r\n]*\r?\n', '')
+  $new = [regex]::Replace($new, '(<UseVersionInfo Value="True"/>(\r?\n))', $nr)
+  if ($new -ne $old) { [IO.File]::WriteAllText($lpi, $new, (New-Object Text.UTF8Encoding $false)) }
   if (Test-Path Commander.exe) { Remove-Item Commander.exe.old -ErrorAction SilentlyContinue; Rename-Item Commander.exe Commander.exe.old }
   Laz 'src\doublecmd.lpi' "--bm=$BuildMode"
 }
