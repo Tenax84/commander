@@ -108,6 +108,11 @@ type
     FColumnsSortDirections: TColumnsSortDirections;
     FFileNameColumn: Integer;
     FExtensionColumn: Integer;
+    // Total Commander style: cursor visibility before a file list reload
+    FFileListLoaded: Boolean;
+    FActiveFileWasVisible: Boolean;
+    FActiveIndexBeforeLoad: PtrInt;
+    FDisplayedLocation: String;
 
     pmColumnsMenu: TPopupMenu;
     dgPanel: TDrawGridEx;
@@ -814,7 +819,12 @@ end;
 procedure TColumnsFileView.SetActiveFile(FileIndex: PtrInt; ScrollTo: Boolean; aLastTopRowIndex: PtrInt = -1);
 begin
   if not ScrollTo then
-    dgPanel.SetColRow(dgPanel.Col, FileIndex + dgPanel.FixedRows)
+  begin
+    dgPanel.SetColRow(dgPanel.Col, FileIndex + dgPanel.FixedRows);
+    // Total Commander style: keep the scroll position (a reload resets it)
+    if (aLastTopRowIndex <> -1) and (dgPanel.TopRow <> aLastTopRowIndex) then
+      dgPanel.TopRow := aLastTopRowIndex;
+  end
   else begin
     dgPanel.Row := FileIndex + dgPanel.FixedRows;
     if (aLastTopRowIndex <> -1) then dgPanel.TopRow := aLastTopRowIndex;
@@ -1024,6 +1034,12 @@ procedure TColumnsFileView.FileSourceFileListLoaded;
 begin
   inherited;
 
+  // Total Commander style: remember the cursor before the reset below,
+  // so a reload of the same directory does not scroll the list back to it
+  FFileListLoaded := True;
+  FActiveFileWasVisible := IsActiveFileVisible;
+  FActiveIndexBeforeLoad := GetActiveFileIndex;
+
   FUpdatingActiveFile := True;
   dgPanel.Row := 0;
   FUpdatingActiveFile := False;
@@ -1032,8 +1048,25 @@ end;
 procedure TColumnsFileView.DisplayFileListChanged;
 var
   ScrollTo: Boolean;
+  KeepScroll: Boolean;
+  ActiveIndex: PtrInt;
 begin
   ScrollTo := IsActiveFileVisible;
+  // Total Commander style: when the list of the displayed directory is
+  // updated in the background while the cursor is scrolled out of view
+  // (mouse wheel), keep the scroll position instead of jumping to the cursor
+  ActiveIndex := GetActiveFileIndex;
+  if FFileListLoaded then
+  begin
+    // The grid was reset to the first row after reload
+    FFileListLoaded := False;
+    ScrollTo := FActiveFileWasVisible;
+    ActiveIndex := FActiveIndexBeforeLoad;
+    KeepScroll := (not ScrollTo) and (FDisplayedLocation = CurrentLocation);
+  end
+  else
+    KeepScroll := not ScrollTo;
+  FDisplayedLocation := CurrentLocation;
 
   // Row count updates and Content updates should be grouped in one transaction
   // otherwise, Grids may have subtle synchronization issues.
@@ -1047,8 +1080,19 @@ begin
     RequestedActiveFile := ''
   // Requested file was not found, restore position to last active file.
   else if not SetActiveFileNow(LastActiveFile, ScrollTo, FLastTopRowIndex) then
+  begin
+    // Total Commander style: keep the cursor row and the scroll position
+    if KeepScroll and (FFiles.Count > 0) and (ActiveIndex >= 0) then
+    begin
+      if ActiveIndex >= FFiles.Count then ActiveIndex := FFiles.Count - 1;
+      FUpdatingActiveFile := True;
+      SetActiveFile(ActiveIndex, False, FLastTopRowIndex);
+      FUpdatingActiveFile := False;
+    end
+    else
   // Make sure at least that the previously active file is still visible after displaying file list.
     MakeActiveVisible;
+  end;
 
   Notify([fvnVisibleFilePropertiesChanged]);
 
